@@ -1,0 +1,137 @@
+﻿@model List<Pharmaflow7.Models.Product>
+@{
+    ViewData["Title"] = "Manage Products";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Medicine Tracking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="~/css/dash.css" asp-append-version="true">
+</head>
+<body>
+   
+    <!-- Main Content -->
+    <div class="content">
+        <h1 class="mb-4">Manage Products</h1>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Production Date</th>
+                        <th>Expiration Date</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    @foreach (var product in Model)
+                    {
+                        <tr id="product-row-@product.Id">
+                            <td>@product.Id</td>
+                            <td>@product.Name</td>
+                            <td>@product.ProductionDate.ToString("yyyy-MM-dd")</td>
+                            <td>@product.ExpirationDate.ToString("yyyy-MM-dd")</td>
+                            <td>@product.Description</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm me-2" onclick="editProduct(@product.Id)"><i class="fas fa-edit"></i> Edit</button>
+                                <form asp-action="DeleteProduct" method="post" style="display:inline;" onsubmit="return deleteProduct(@product.Id, event);">
+                                    <input type="hidden" name="id" value="@product.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="editModalContent">
+                <!-- سيتم ملؤه ديناميكيًا عبر AJAX -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function editProduct(id) {
+            $.ajax({
+                url: '@Url.Action("EditProduct", "Company")',
+                type: 'GET',
+                data: { id: id },
+                success: function (data) {
+                    $('#editModalContent').html(data);
+                    new bootstrap.Modal(document.getElementById('editProductModal')).show();
+                },
+                error: function () {
+                    alert('Error loading product data.');
+                }
+            });
+        }
+
+        function saveEditedProduct() {
+            var form = $('#editProductForm');
+            $.ajax({
+                url: '@Url.Action("EditProduct", "Company")',
+                type: 'POST',
+                data: form.serialize(),
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert('Error updating product.');
+                    }
+                },
+                error: function () {
+                    alert('Error saving changes.');
+                }
+            });
+        }
+
+        function deleteProduct(id, event) {
+            event.preventDefault(); // منع إرسال النموذج مباشرة
+            if (confirm('Are you sure you want to delete this product?')) {
+                $.ajax({
+                    url: '@Url.Action("DeleteProduct", "Company")',
+                    type: 'POST',
+                    data: { id: id },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // تأثير التلاشي قبل الإزالة
+                            $('#product-row-' + response.productId).fadeOut(500, function () {
+                                $(this).remove();
+                                alert(response.message); // رسالة نجاح اختيارية
+                            });
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Error deleting product.');
+                    }
+                });
+            }
+            return false; // منع التقديم الافتراضي للنموذج
+        }
+    </script>
+</body>
+</html>

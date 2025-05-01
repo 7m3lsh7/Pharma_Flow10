@@ -1,0 +1,45 @@
+﻿/* wwwroot/css/styles.css */
+
+
+
+
+.content {
+    
+    padding: 30px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+.table {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+    .table th, .table td {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+
+    .table thead th {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}

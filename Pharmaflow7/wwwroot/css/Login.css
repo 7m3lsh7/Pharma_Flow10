@@ -1,0 +1,98 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.login-container {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+    .login-container h2 {
+        font-size: 28px;
+        color: #333;
+        margin-bottom: 30px;
+    }                          
+    .login-container input[type="email"],
+    .login-container input[type="password"],
+    .login-container input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .login-container input:focus {
+        border-color: #007bff;
+    }
+
+    .login-container input[type="checkbox"] {
+        margin: 10px 5px 10px 0;
+        vertical-align: middle;
+    }
+
+    .login-container button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+
+.social-login {
+    margin-top: 20px;
+}
+
+    .social-login p {
+        color: #666;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    transition: opacity 0.3s;
+}
+
+    .social-btn:hover {
+        opacity: 0.9;
+    }
+
+.google-btn {
+    background-color: #db4437;
+}
+
+.facebook-btn {
+    background-color: #3b5998;
+}
+
+.social-btn i {
+    margin-left: 10px;
+}

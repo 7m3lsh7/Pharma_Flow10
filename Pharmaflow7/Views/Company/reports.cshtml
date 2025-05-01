@@ -1,0 +1,150 @@
+﻿@model Pharmaflow7.Models.ReportsViewModel
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Medicine Tracking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/reports.css" asp-append-version="true">
+</head>
+<body>
+    <div class="content">
+        <h1 class="mb-4">Reports</h1>
+
+        <!-- Sales Report -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card p-3">
+                    <h3>Sales Performance</h3>
+                    <canvas id="salesChart" class="chart-container"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reported Issues -->
+        <div class="mb-4">
+            <h3>Reported Issues</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Issue ID</th>
+                            <th>Product</th>
+                            <th>Issue Type</th>
+                            <th>Reported By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="issuesTableBody">
+                        @foreach (var issue in Model.Issues)
+                        {
+                            <tr>
+                                <td>@issue.Id</td>
+                                <td>@issue.ProductName</td>
+                                <td>@issue.IssueType</td>
+                                <td>@issue.ReportedBy</td>
+                                <td>@issue.Date.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @switch (issue.Status)
+                                    {
+                                        case "Open":
+                                            <span class="badge bg-warning">Open</span>
+                                            break;
+                                        case "Resolved":
+                                            <span class="badge bg-success">Resolved</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@issue.Status</span>
+                                            break;
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Distribution Performance -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h3>Distribution Performance</h3>
+                    <canvas id="distributionChart" class="chart-container"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h3>Top Products by Sales</h3>
+                    <canvas id="topProductsChart" class="chart-container"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+   
+<script>
+    // Sales Performance Chart
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.SalesPerformance.Select(d => d.Month))),
+            datasets: [{
+                label: 'Shipments',
+                data: @Html.Raw(Json.Serialize(Model.SalesPerformance.Select(d => d.Total))),
+                borderColor: '#084181',
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Distribution Performance Chart
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    new Chart(distributionCtx, {
+        type: 'pie',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.DistributionPerformance.Select(d => d.Destination))),
+            datasets: [{
+                data: @Html.Raw(Json.Serialize(Model.DistributionPerformance.Select(d => d.Count))),
+                backgroundColor: ['#084181', '#110555', '#1a73e8', '#90caf9', '#ffca28']
+            }]
+        }
+    });
+
+    // Top Products Chart
+    const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+    new Chart(topProductsCtx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.TopProducts.Select(p => p.ProductName))),
+            datasets: [{
+                label: 'Sales Count',
+                data: @Html.Raw(Json.Serialize(Model.TopProducts.Select(p => p.SalesCount))),
+                backgroundColor: '#084181'
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

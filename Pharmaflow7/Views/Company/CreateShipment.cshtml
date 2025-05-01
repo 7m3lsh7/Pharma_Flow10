@@ -1,0 +1,133 @@
+﻿@model Pharmaflow7.Models.ShipmentViewModel
+@{
+    ViewData["Title"] = "Create Shipment";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Pharmaflow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Create New Shipment</h1>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+        <form asp-action="CreateShipment" method="post" id="createShipmentForm">
+            <div class="mb-3">
+                <label asp-for="ProductId" class="form-label">Product</label>
+                <select asp-for="ProductId" class="form-control" id="ProductId" asp-items="@(new SelectList(Model.Products, "Id", "Name"))">
+                    <option value="">Select a product</option>
+                </select>
+                <span asp-validation-for="ProductId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Destination" class="form-label">Destination</label>
+                <input asp-for="Destination" class="form-control" id="Destination" />
+                <span asp-validation-for="Destination" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DistributorId" class="form-label">Distributor</label>
+                <select asp-for="DistributorId" class="form-control" id="distributorSelect" asp-items="@(new SelectList(Model.Distributors, "Id", "UserName"))">
+                    <option value="">Not Assigned</option>
+                </select>
+                <span asp-validation-for="DistributorId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="StoreId" class="form-label">Store</label>
+                <select asp-for="StoreId" class="form-control" id="storeSelect" name="StoreId">
+                    <option value="">Select a distributor first</option>
+                </select>
+                <span asp-validation-for="StoreId" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const distributorSelect = document.getElementById("distributorSelect");
+        const storeSelect = document.getElementById("storeSelect");
+        const form = document.getElementById("createShipmentForm");
+        let isFetchingStores = false;
+
+        distributorSelect.addEventListener("change", function () {
+            const distributorId = this.value;
+            storeSelect.innerHTML = '<option value="">Select a store</option>';
+            if (distributorId) {
+                const url = `${window.location.origin}/Company/GetStores?distributorId=${distributorId}`;
+                console.log("Fetching stores from:", url);
+                isFetchingStores = true;
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(stores => {
+                    console.log("Stores received:", stores);
+                    stores.forEach(store => {
+                        const option = document.createElement("option");
+                        option.value = store.id;
+                        option.text = store.storeName;
+                        storeSelect.appendChild(option);
+                    });
+                    isFetchingStores = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching stores:', error);
+                    storeSelect.innerHTML = '<option value="">Error loading stores</option>';
+                    isFetchingStores = false;
+                });
+            }
+        });
+
+        form.addEventListener("submit", function (e) {
+            const productId = document.getElementById("ProductId").value;
+            const destination = document.getElementById("Destination").value;
+            const distributorId = distributorSelect.value;
+            const storeId = storeSelect.value;
+
+            if (!productId || !destination) {
+                e.preventDefault();
+                alert("Please select a product and enter a destination.");
+                return;
+            }
+
+            if (isFetchingStores) {
+                e.preventDefault();
+                alert("Please wait until stores are loaded.");
+                return;
+            }
+
+            if (distributorId && !storeId) {
+                e.preventDefault();
+                alert("Please select a store for the selected distributor.");
+                return;
+            }
+
+            console.log("Form submitted with data:", {
+                ProductId: productId,
+                Destination: destination,
+                DistributorId: distributorId || "Not Assigned",
+                StoreId: storeId || "Not Assigned"
+            });
+        });
+    </script>
+</body>
+</html>

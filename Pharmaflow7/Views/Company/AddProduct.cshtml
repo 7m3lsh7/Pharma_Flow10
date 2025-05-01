@@ -1,0 +1,102 @@
+﻿@model Pharmaflow7.Models.Product
+
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Medicine Tracking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="~/css/add_product.css" asp-append-version="true">
+    <style>
+       
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1 class="mb-4">Add New Product</h1>
+
+        <div class="form-container">
+            <form asp-action="AddProduct" asp-controller="Company" method="post" id="addProductForm">
+                @Html.AntiForgeryToken()
+                <div class="mb-3 position-relative">
+                    <input asp-for="Name" name="Name" class="form-control" id="productName" placeholder="Product Name" required>
+                    <i class="fas fa-capsules input-icon"></i>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input asp-for="ProductionDate" name="ProductionDate" type="date" class="form-control" id="productionDate" required>
+                    <i class="fas fa-calendar-alt input-icon"></i>
+                    <span asp-validation-for="ProductionDate" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input asp-for="ExpirationDate" name="ExpirationDate" type="date" class="form-control" id="expirationDate" required>
+                    <i class="fas fa-calendar-times input-icon"></i>
+                    <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <textarea asp-for="Description" name="Description" class="form-control" id="description" rows="3" required placeholder="Description"></textarea>
+                    <i class="fas fa-file-alt input-icon" style="top: 20px;"></i>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Add Product & Generate QR Code</button>
+            </form>
+
+            <div id="qrCodeContainer" class="mt-4">
+                <h5>Generated QR Code</h5>
+                <div id="qrCode"></div>
+                <button class="btn btn-primary mt-3" onclick="downloadQR()">Download QR Code</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="~/js/add_product.js" asp-append-version="true"></script>
+    <script>
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Simulate QR code generation (replace with actual logic)
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            qrCodeContainer.style.display = 'block';
+            qrCodeContainer.classList.add('show');
+
+            new QRCode(document.getElementById('qrCode'), {
+                text: 'https://pharmaflow.example.com/product/12345',
+                width: 150,
+                height: 150,
+                colorDark: '#042557',
+                colorLight: '#ffffff'
+            });
+        });
+
+        function downloadQR() {
+            const qrCanvas = document.querySelector('#qrCode canvas');
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = qrCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Animate icons on input focus
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                const icon = input.nextElementSibling.querySelector('.input-icon');
+                if (icon) {
+                    icon.classList.add('animate__animated', 'animate__bounce');
+                }
+            });
+        });
+    </script>
+    @section Scripts {
+            <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

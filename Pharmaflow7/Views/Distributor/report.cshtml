@@ -1,0 +1,29 @@
+﻿
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Page</title>
+    <link rel="stylesheet" href="~/css/report.css">
+    <div class="container">
+        <h1>Submit Report</h1>
+        <form id="reportForm">
+            <label for="companyName">Company Name:</label>
+            <input type="text" id="companyName" name="companyName" required>
+
+            <label for="issueType">Issue Type:</label>
+            <select id="issueType" name="issueType" required>
+                <option value="">Select Issue Type</option>
+                <option value="Stock Shortage">Stock Shortage</option>
+                <option value="Distribution Issues">Distribution Issues</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="details">Details:</label>
+            <textarea id="details" name="details" rows="5" required></textarea>
+
+            <button type="submit">Submit Report</button>
+        </form>
+
+        <h2>Submitted Reports</h2>
+        <div id="reportList"></div>
+    </div>
+    <script src="~/js/report.js"></script>

@@ -1,0 +1,7 @@
+﻿[
+  {
+    "outputFileName": "wwwroot/js/Signup.min.js",
+    "inputFiles": [ "wwwroot/js/Signup.js" ],
+    "minify": { "enabled": true }
+  }
+]

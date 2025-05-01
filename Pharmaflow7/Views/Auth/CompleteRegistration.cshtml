@@ -1,0 +1,100 @@
+﻿@model Pharmaflow7.Models.UserRegistrationModel
+
+@{
+    ViewData["Title"] = "Complete Registration";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Pharmaflow7</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="~/css/Signup.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="background-animation">
+        <div class="bubble" style="left: 10%; animation-duration: 8s;"></div>
+        <div class="bubble" style="left: 30%; animation-duration: 12s;"></div>
+        <div class="bubble" style="left: 50%; animation-duration: 9s;"></div>
+        <div class="bubble" style="left: 70%; animation-duration: 14s;"></div>
+        <div class="bubble" style="left: 90%; animation-duration: 10s;"></div>
+    </div>
+    <div class="signup-container text-center">
+        <h2 class="fw-bold sign">Complete Your Registration</h2>
+        <p>Please provide additional details to complete your account setup.</p>
+
+        <form asp-action="CompleteRegistration" asp-controller="Auth" method="post">
+            <input type="hidden" asp-for="Email" />
+            <div class="mb-3 position-relative">
+                <select class="form-control rounded-pill ps-5" asp-for="RoleType" id="userType" required onchange="adjustFields()">
+                    <option value="">Select User Type</option>
+                    <option value="consumer">Consumer</option>
+                    <option value="company">Pharmaceutical Company</option>
+                    <option value="distributor">Distributor</option>
+                </select>
+                <i class="H fas fa-users position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                <span asp-validation-for="RoleType" class="text-danger"></span>
+            </div>
+
+            <div id="consumerFields" style="display: none;">
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="FullName" id="fullName" placeholder="Full Name" required>
+                    <i class="H fas fa-user position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="Address" id="address" placeholder="Address (Optional)">
+                    <i class="H fas fa-map-marker-alt position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                </div>
+            </div>
+
+            <div id="companyFields" style="display: none;">
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="CompanyName" id="companyName" placeholder="Company Name" required>
+                    <i class="H fas fa-building position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="LicenseNumber" id="licenseNumber" placeholder="License Number" required>
+                    <i class="H fas fa-id-card position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                    <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="CompanyContactNumber" id="companyContact" placeholder="Contact Number" required>
+                    <i class="H fas fa-phone position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                    <span asp-validation-for="CompanyContactNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div id="distributorFields" style="display: none;">
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="DistributorName" id="distributorName" placeholder="Distributor Name" required>
+                    <i class="H fas fa-user position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                    <span asp-validation-for="DistributorName" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="WarehouseAddress" id="warehouseAddress" placeholder="Warehouse Address" required>
+                    <i class="H fas fa-warehouse position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                    <span asp-validation-for="WarehouseAddress" class="text-danger"></span>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input type="text" class="form-control rounded-pill ps-5" asp-for="DistributorContactNumber" id="distributorContact" placeholder="Contact Number" required>
+                    <i class="H fas fa-phone position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>
+                    <span asp-validation-for="DistributorContactNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Complete Registration</button>
+        </form>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/Signup.min.js" asp-append-version="true"></script>
+    }
+</body>
+</html>

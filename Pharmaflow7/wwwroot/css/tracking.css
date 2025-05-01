@@ -1,0 +1,57 @@
+﻿body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #084181, #110555);
+    color: white;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
+   
+    padding: 30px;
+}
+
+.table {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+    .table th, .table td {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+
+    .table thead th {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+.btn-primary {
+    background: linear-gradient(45deg, #2d89ef, #66ccff);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #1e70bf, #55b2e8);
+        transform: scale(1.05);
+    }
+
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}

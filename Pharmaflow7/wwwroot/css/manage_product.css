@@ -1,0 +1,79 @@
+﻿/* wwwroot/css/styles.css */
+
+.content {
+  
+    padding: 30px;
+}
+
+.table {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+    .table th, .table td {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+
+    .table thead th {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+.btn-primary {
+    background: linear-gradient(45deg, #2d89ef, #66ccff);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #1e70bf, #55b2e8);
+        transform: scale(1.05);
+    }
+
+.btn-danger {
+    background: linear-gradient(45deg, #ef2d2d, #ff6666);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+    .btn-danger:hover {
+        background: linear-gradient(45deg, #bf1e1e, #e85555);
+        transform: scale(1.05);
+    }
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 15px;
+    color: white;
+}
+
+.modal-header, .modal-footer {
+    border: none;
+}
+
+.form-control {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 30px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #66ccff;
+        box-shadow: 0 0 10px rgba(102, 204, 255, 0.5);
+        color: white;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }

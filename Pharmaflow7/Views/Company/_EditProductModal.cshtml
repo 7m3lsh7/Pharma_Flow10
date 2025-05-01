@@ -1,0 +1,31 @@
+﻿@model Pharmaflow7.Models.ProductViewModel
+
+<div class="modal-header">
+    <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="editProductForm">
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3">
+            <input asp-for="Name" class="form-control" placeholder="Product Name" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <input asp-for="ProductionDate" class="form-control" type="date" required />
+            <span asp-validation-for="ProductionDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <input asp-for="ExpirationDate" class="form-control" type="date" required />
+            <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Description" required></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-primary" onclick="saveEditedProduct()">Save Changes</button>
+</div>

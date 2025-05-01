@@ -1,0 +1,454 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PharmaFlow - Verify Your Medicine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+     
+
+        /* Hero Sectioيسيسn */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #00c2ff 0%, #007ba7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
+            z-index: 1;
+        }
+
+        .hero-content {
+            z-index: 2;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: #fff;
+            background: linear-gradient(90deg, #ffffff, #b3e5fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.6rem;
+            color: #e0f7fa;
+            margin: 1.5rem 0;
+        }
+
+        .cta-btn {
+            padding: 1rem 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: #fff;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            background: linear-gradient(45deg, #e55a5a, #e57846);
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* About Project */
+        .about-project {
+            padding: 6rem 2rem;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .about-project h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2rem;
+        }
+
+        .about-project p {
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, #f1f5f9 0%, #e0f7fa 100%);
+            text-align: center;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .step-item {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .step-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-item i {
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+        }
+
+        /* Features */
+        .features {
+            padding: 6rem 2rem;
+            background: #f8fafc;
+        }
+
+        .features-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-item img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Use Case Examples */
+        .use-cases {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #2e6bc5, #042557);
+            color: #fff;
+            text-align: center;
+        }
+
+        .use-case-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .use-case-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            border-radius: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .use-case-item:hover {
+            transform: translateY(-10px);
+        }
+
+        /* Statistics */
+        .statistics {
+            padding: 6rem 2rem;
+            background: #007ba7;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .stat-item p {
+            font-size: 1.2rem;
+            color: #e0f7fa;
+        }
+
+        /* Scroll to Top */
+        .scroll-top {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: #ff6b6b;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-top:hover {
+            background: #e55a5a;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+   
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>PharmaFlow: <span>Verify</span> Your Medicine</h1>
+                <p>Transform medicine safety with our Blockchain-powered QR Scanner. Verify authenticity, track supply chains, and ensure trust in every dose.</p>
+                <button class="cta-btn" onclick="scrollToFeatures()">Get Started</button>
+            </div>
+        </section>
+
+        <section class="about-project">
+            <h2>Our Vision</h2>
+            <p>PharmaFlow is a revolutionary platform combating counterfeit medicines. Using Blockchain, we offer real-time verification, transparent tracking, and secure data to empower patients, pharmacies, and manufacturers with confidence and safety.</p>
+            <button class="cta-btn" onclick="scrollToHowItWorks()">Learn How</button>
+        </section>
+
+        <section class="how-it-works" id="how-it-works">
+            <h2 class="text-center text-3xl font-bold mb-12">How It Works</h2>
+            <div class="steps-container">
+                <div class="step-item">
+                    <i class="fas fa-qrcode"></i>
+                    <h3 class="text-xl font-semibold">Scan QR Code</h3>
+                    <p>Use our mobile app to scan the QR code on your medicine package.</p>
+                </div>
+                <div class="step-item">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 class="text-xl font-semibold">Verify Authenticity</h3>
+                    <p>Instantly confirm the medicine’s origin and authenticity via Blockchain.</p>
+                </div>
+                <div class="step-item">
+                    <i class="fas fa-truck"></i>
+                    <h3 class="text-xl font-semibold">Track Journey</h3>
+                    <p>View the complete supply chain from manufacturer to your hands.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <h2 class="text-center text-3xl font-bold mb-12">Why PharmaFlow?</h2>
+            <div class="features-container">
+                <div class="feature-item">
+                    <img src="https://via.placeholder.com/100" alt="Verification">
+                    <h3 class="text-xl font-semibold">Instant Verification</h3>
+                    <p>Scan QR codes to verify medicine authenticity in seconds.</p>
+                </div>
+                <div class="feature-item">
+                    <img src="https://via.placeholder.com/100" alt="Tracking">
+                    <h3 class="text-xl font-semibold">End-to-End Tracking</h3>
+                    <p>Trace every step of your medicine’s journey with transparency.</p>
+                </div>
+                <div class="feature-item">
+                    <img src="https://via.placeholder.com/100" alt="Security">
+                    <h3 class="text-xl font-semibold">Blockchain Security</h3>
+                    <p>Immutable and secure data with decentralized technology.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="use-cases">
+            <h2 class="text-center text-3xl font-bold mb-12">Real-World Impact</h2>
+            <div class="use-case-container">
+                <div class="use-case-item">
+                    <h3 class="text-xl font-semibold">Patient Safety</h3>
+                    <p>A patient scans a QR code to ensure their medication is genuine, avoiding counterfeit drugs.</p>
+                </div>
+                <div class="use-case-item">
+                    <h3 class="text-xl font-semibold">Pharmacy Trust</h3>
+                    <p>Pharmacies verify bulk shipments to guarantee authentic stock for customers.</p>
+                </div>
+                <div class="use-case-item">
+                    <h3 class="text-xl font-semibold">Manufacturer Oversight</h3>
+                    <p>Manufacturers track products to prevent supply chain fraud.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="statistics">
+            <h2 class="text-center text-3xl font-bold mb-12">Trusted Globally</h2>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <h3 id="medicinesCount">0</h3>
+                    <p>Medicines Verified</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="partnersCount">0</h3>
+                    <p>Partner Companies</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="accuracyCount">0%</h3>
+                    <p>Accuracy Rate</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scroll functions
+        function scrollToFeatures() {
+            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToHowItWorks() {
+            document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // GSAP Animations
+        gsap.from('.hero-content h1', { opacity: 0, y: 50, duration: 1, ease: 'power3.out' });
+        gsap.from('.hero-content p', { opacity: 0, y: 50, duration: 1, delay: 0.3, ease: 'power3.out' });
+        gsap.from('.hero-content .cta-btn', { opacity: 0, scale: 0.8, duration: 1, delay: 0.6, ease: 'elastic.out(1, 0.5)' });
+
+        gsap.utils.toArray('.step-item').forEach(item => {
+            gsap.from(item, {
+                opacity: 0,
+                scale: 0.9,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                }
+            });
+        });
+
+        gsap.utils.toArray('.feature-item').forEach(item => {
+            gsap.from(item, {
+                opacity: 0,
+                y: 100,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                }
+            });
+        });
+
+        gsap.utils.toArray('.use-case-item').forEach(item => {
+            gsap.from(item, {
+                opacity: 0,
+                x: -100,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                }
+            });
+        });
+
+        gsap.from('.about-project h2', {
+            opacity: 0,
+            x: -100,
+            duration: 1,
+            scrollTrigger: {
+                trigger: '.about-project',
+                start: 'top 80%'
+            }
+        });
+
+        gsap.from('.about-project p', {
+            opacity: 0,
+            x: 100,
+            duration: 1,
+            delay: 0.3,
+            scrollTrigger: {
+                trigger: '.about-project',
+                start: 'top 80%'
+            }
+        });
+
+        // Counter Animation
+        const counters = [
+            { id: 'medicinesCount', end: 10000, duration: 2 },
+            { id: 'partnersCount', end: 50, duration: 2 },
+            { id: 'accuracyCount', end: 99, duration: 2, suffix: '%' }
+        ];
+
+        function animateCounters() {
+            counters.forEach(counter => {
+                gsap.to(`#${counter.id}`, {
+                    innerText: counter.end,
+                    duration: counter.duration,
+                    snap: { innerText: 1 },
+                    onUpdate: function() {
+                        document.getElementById(counter.id).innerText = 
+                            counter.suffix 
+                                ? Math.round(this.targets()[0].innerText) + counter.suffix 
+                                : Math.round(this.targets()[0].innerText);
+                    },
+                    scrollTrigger: {
+                        trigger: '.statistics',
+                        start: 'top 80%',
+                        toggleActions: 'play none none none'
+                    }
+                });
+            });
+        }
+
+        // Scroll to top button
+        window.addEventListener('scroll', () => {
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            scrollTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+        });
+
+        // Initialize animations
+        animateCounters();
+    </script>
+</body>
+</html>
