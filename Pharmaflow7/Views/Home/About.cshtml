@@ -1,0 +1,366 @@
+﻿@{
+    ViewData["Title"] = "About PharmaFlow";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Medicine Tracking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #042557;
+            --accent: #FF6B6B;
+            --secondary: #2e6bc5;
+            --text-light: #E0F7FA;
+            --glow: rgba(255, 107, 107, 0.5);
+            --gold: #FFD700;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #042557, #2e6bc5);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+     
+
+        keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-1440px); }
+        }
+
+        .content {
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(45deg, #66ccff, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 50px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .hero-section p {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Mission Section */
+        .mission-section {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .mission-section .icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Workflow Section */
+        .workflow-section {
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(90deg, #042557, #2e6bc5);
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .timeline-item {
+            position: relative;
+            width: 45%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(odd) {
+            float: left;
+            clear: both;
+            animation-delay: 0.2s;
+        }
+
+        .timeline-item:nth-child(even) {
+            float: right;
+            clear: both;
+            animation-delay: 0.4s;
+        }
+
+        keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .timeline-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--gold);
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            top: 20px;
+            z-index: 2;
+        }
+
+        .timeline-item:nth-child(odd)::before {
+            right: -30px;
+        }
+
+        .timeline-item:nth-child(even)::before {
+            left: -30px;
+        }
+
+        .timeline-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .timeline-item p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Call to Action Button */
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #2d89ef, #66ccff);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(45deg, #1e70bf, #55b2e8);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animations */
+        keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .timeline-item {
+                width: 90%;
+                margin-left: 0;
+                float: none;
+                clear: both;
+            }
+
+            .timeline-item::before {
+                left: -30px;
+            }
+
+            .timeline-item:nth-child(even) {
+                margin-left: 0;
+            }
+        }
+
+        media (max-width: 480px) {
+            .content {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .timeline-item {
+                padding: 15px;
+            }
+
+            .timeline-item h3 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>About PharmaFlow</h1>
+            <p>
+                PharmaFlow is a revolutionary platform designed to ensure the safety and authenticity of medicines through blockchain-powered QR scanning and transparent supply chain tracking. Our mission is to empower companies, distributors, and consumers with a secure and efficient system to track medicine from production to delivery.
+            </p>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="mission-section">
+            <i class="fas fa-shield-alt icon"></i>
+            <h2>Our Mission</h2>
+            <p>
+                At PharmaFlow, we aim to eliminate counterfeit medicines and enhance transparency in the pharmaceutical supply chain. By leveraging cutting-edge blockchain technology, we provide a reliable solution that ensures every medicine's journey is traceable, secure, and verifiable.
+            </p>
+            <a href="@Url.Action("HowItWorks", "Home")" class="cta-button">Learn How It Works</a>
+        </div>
+
+        <!-- Workflow Section -->
+        <div class="workflow-section">
+            <h2>Our Workflow</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>Production</h3>
+                    <p>Medicines are manufactured with unique QR codes embedded using blockchain technology for authenticity.</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>Distribution</h3>
+                    <p>Products are distributed with real-time tracking, ensuring transparency across the supply chain.</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>Verification</h3>
+                    <p>Consumers and distributors scan QR codes to verify product authenticity and origin.</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>Delivery</h3>
+                    <p>Final delivery is confirmed with secure records stored on the blockchain for audit trails.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Trigger animations on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.hero-section, .mission-section, .timeline-item').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
