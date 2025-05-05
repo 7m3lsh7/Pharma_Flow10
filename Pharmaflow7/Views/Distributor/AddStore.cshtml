@@ -26,12 +26,12 @@
         <!-- Form لإضافة مخزن جديد -->
         <form asp-action="AddStore" method="post" id="addStoreForm">
             <div class="mb-3">
-                <label asp-for="NewStore.StoreName" class="form-label">Store Name</label>
+                <label asp-for="NewStore.StoreName" class="form-label" style="color: white;">Store Name</label>
                 <input asp-for="NewStore.StoreName" class="form-control" />
                 <span asp-validation-for="NewStore.StoreName" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="NewStore.StoreAddress" class="form-label">Store Address</label>
+                <label asp-for="NewStore.StoreAddress" class="form-label" style="color: white;">Store Address</label>
                 <input asp-for="NewStore.StoreAddress" class="form-control" id="storeAddress" />
                 <span asp-validation-for="NewStore.StoreAddress" class="text-danger"></span>
             </div>

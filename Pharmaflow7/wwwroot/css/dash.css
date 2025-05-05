@@ -141,7 +141,7 @@ h3 {
     }
 
     .table thead th {
-        background: linear-gradient(45deg, #042557, #2e6bc5);
+        background-color: #5393c1;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
