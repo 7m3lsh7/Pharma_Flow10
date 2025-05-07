@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Pharmaflow7.Migrations
 {
     /// <inheritdoc />
-    public partial class one : Migration
+    public partial class adasx : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -309,7 +309,9 @@ namespace Pharmaflow7.Migrations
                     CompanyId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     DistributorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     StoreId = table.Column<int>(type: "int", nullable: true),
-                    IsAcceptedByDistributor = table.Column<bool>(type: "bit", nullable: true)
+                    IsAcceptedByDistributor = table.Column<bool>(type: "bit", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {

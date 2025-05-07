@@ -1,66 +1,93 @@
-﻿
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Dashboard</title>
-    <link rel="stylesheet" href="~/css/dashboard.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Chart.js for charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Distributor Dashboard";
+}
 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributor Dashboard</title>
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.js"></script>
 
-
-    <!-- Main Content -->
-    <div class="dashboard-container">
-        <h1><i class="fas fa-eye"></i> Overview</h1>
-        <div class="overview">
-            <div class="card" id="stock">
-                <h2><i class="fas fa-boxes"></i> Current Inventory</h2>
-                <p id="stock-value">0</p>
-            </div>
-            <div class="card" id="incoming">
-                <h2><i class="fas fa-arrow-down"></i> Incoming Shipments</h2>
-                <p id="incoming-value">0</p>
-            </div>
-            <div class="card" id="outgoing">
-                <h2><i class="fas fa-arrow-up"></i> Outgoing Shipments</h2>
-                <p id="outgoing-value">0</p>
-            </div>
+<!-- Main Content -->
+<div class="dashboard-container">
+    <h1><i class="fas fa-eye"></i> Overview</h1>
+    <div class="overview">
+        <div class="card" id="stock">
+            <h2><i class="fas fa-boxes"></i> Current Inventory</h2>
+            <p id="stock-value">Loading...</p>
         </div>
-
-        <!-- Chart Section -->
-        <div class="chart-container">
-            <h2><i class="fas fa-chart-line"></i> Inventory Stats</h2>
-            <canvas id="inventoryChart"></canvas>
+        <div class="card" id="incoming">
+            <h2><i class="fas fa-arrow-down"></i> Incoming Shipments</h2>
+            <p id="incoming-value">Loading...</p>
         </div>
-
-        <!-- Shipments Table -->
-        <div class="shipments-table">
-            <h2><i class="fas fa-table"></i> Shipment Details</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Shipment ID</th>
-                        <th>Type</th>
-                        <th>Quantity</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="shipments-body"></tbody>
-            </table>
-        </div>
-
-        <!-- Actions -->
-        <div class="actions">
-            <button id="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh Data</button>
-            <button id="add-shipment-btn"><i class="fas fa-plus"></i> Add New Shipment</button>
+        <div class="card" id="outgoing">
+            <h2><i class="fas fa-arrow-up"></i> Outgoing Shipments</h2>
+            <p id="outgoing-value">Loading...</p>
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading">
-        <div class="spinner"></div>
+    <!-- Chart Section -->
+    <div class="chart-container">
+        <h2><i class="fas fa-chart-line"></i> Shipments by Status</h2>
+        <canvas id="inventoryChart"></canvas>
     </div>
 
-    <script src="~/js/dashboard.js"></script>
+    <!-- Shipments Table -->
+    <div class="shipments-table">
+        <h2><i class="fas fa-table"></i> Shipment Details</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Shipment ID</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="shipments-body">
+                <tr>
+                    <td colspan="5">Loading shipments...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+        <button id="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+        <button id="add-shipment-btn"><i class="fas fa-plus"></i> Add New Shipment</button>
+    </div>
+</div>
+
+<!-- Add Shipment Modal -->
+<div class="modal" id="add-shipment-modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h2>Add New Shipment</h2>
+        <form id="add-shipment-form">
+            <div class="form-group">
+                <label for="product-name">Product Name</label>
+                <input type="text" id="product-name" name="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="destination">Destination</label>
+                <input type="text" id="destination" name="destination" required>
+            </div>
+            <button type="submit" class="btn">Create Shipment</button>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+</div>
+
+<script src="~/js/dashboard.js" asp-append-version="true"></script>

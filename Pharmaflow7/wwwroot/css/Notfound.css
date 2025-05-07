@@ -1,0 +1,127 @@
+﻿body {
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.background-animation {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.bubble {
+    position: absolute;
+    bottom: -50px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    animation: float 10s infinite ease-in-out;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: translate(20px, -60vh);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-20px, -120vh);
+        opacity: 0;
+    }
+}
+
+.error-container {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 1s ease-in-out;
+    max-width: 650px;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: bold;
+    color: #66ccff;
+    text-shadow: 0 0 20px rgba(102, 204, 255, 0.6);
+    animation: pulse 2s infinite;
+}
+
+.error-message {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.btn-home {
+    background: linear-gradient(45deg, #2d89ef, #66ccff);
+    border: none;
+    padding: 12px 35px;
+    border-radius: 30px;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(102, 204, 255, 0.6);
+}
+
+    .btn-home:hover {
+        background: linear-gradient(45deg, #1e70bf, #55b2e8);
+        transform: scale(1.05);
+    }
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.logo {
+    width: 90px;
+    margin-bottom: 20px;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.inspiration {
+    font-size: 1rem;
+    color: #ddd;
+    margin-top: 20px;
+}

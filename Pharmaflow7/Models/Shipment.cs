@@ -17,10 +17,13 @@ namespace Pharmaflow7.Models
         public string CompanyId { get; set; }
         public string DistributorId { get; set; }
         public int? StoreId { get; set; }
-    
+
         public virtual Product Product { get; set; }
         public virtual ApplicationUser Distributor { get; set; }
         public bool? IsAcceptedByDistributor { get; set; }
         public Store Store { get; set; }
+        public int? Quantity { get; set; }
+
+        public DateTime? CreatedAt { get; set; }
     }
 }
