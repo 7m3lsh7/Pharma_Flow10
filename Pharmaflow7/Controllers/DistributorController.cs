@@ -29,6 +29,87 @@ namespace Pharmaflow7.Controllers
             return View();
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardData()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    _logger.LogWarning("Unauthorized access attempt to GetDashboardData.");
+                    return Unauthorized();
+                }
+
+                var shipments = await _context.Shipments
+                    .Where(s => s.DistributorId == user.Id)
+                    .ToListAsync();
+
+                var inventoryCount = shipments
+                    .Where(s => s.Status == "Delivered")
+                    .Sum(s => s.Quantity ?? 0); // null check لـ Quantity
+
+                var incomingShipments = shipments
+                    .Count(s => s.Status == "In Transit" && s.IsAcceptedByDistributor == true);
+
+                var outgoingShipments = shipments
+                    .Count(s => s.Status == "In Transit" && s.IsAcceptedByDistributor == false);
+
+                var data = new
+                {
+                    InventoryCount = inventoryCount,
+                    IncomingShipments = incomingShipments,
+                    OutgoingShipments = outgoingShipments
+                };
+
+                _logger.LogInformation("Dashboard data retrieved for distributor {DistributorId}", user.Id);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving dashboard data for distributor {DistributorId}", User?.Identity?.Name);
+                return StatusCode(500, "An error occurred while retrieving dashboard data.");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetShipments()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    _logger.LogWarning("Unauthorized access attempt to GetShipments.");
+                    return Unauthorized();
+                }
+
+                var shipments = await _context.Shipments
+                    .Where(s => s.DistributorId == user.Id)
+                    .Include(s => s.Product)
+                    .Include(s => s.Store)
+                    .Select(s => new
+                    {
+                        Id = s.Id,
+                        Type = s.Product != null ? s.Product.Name : "Unknown",
+                        Quantity = s.Quantity ?? 0, // null check لـ Quantity
+                        Date = s.CreatedAt.HasValue ? s.CreatedAt.Value.ToString("yyyy-MM-dd") : "N/A", // null check لـ CreatedAt
+                        Status = s.Status
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("Shipments retrieved for distributor {DistributorId}", user.Id);
+                return Json(shipments);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving shipments for distributor {DistributorId}", User?.Identity?.Name);
+                return StatusCode(500, "An error occurred while retrieving shipments.");
+            }
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> TrackShipment()
         {
