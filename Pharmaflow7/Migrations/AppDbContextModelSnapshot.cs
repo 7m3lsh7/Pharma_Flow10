@@ -270,6 +270,42 @@ namespace Pharmaflow7.Migrations
                     b.ToTable("dashboardViewModels");
                 });
 
+            modelBuilder.Entity("Pharmaflow7.Models.Driver", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateHired")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DistributorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NationalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
+
+                    b.HasIndex("DistributorId");
+
+                    b.ToTable("Drivers");
+                });
+
             modelBuilder.Entity("Pharmaflow7.Models.Issue", b =>
                 {
                     b.Property<int>("Id")
@@ -391,8 +427,10 @@ namespace Pharmaflow7.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DistributorId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("DriverId")
+                        .HasColumnType("int");
 
                     b.Property<bool?>("IsAcceptedByDistributor")
                         .HasColumnType("bit");
@@ -415,6 +453,8 @@ namespace Pharmaflow7.Migrations
                     b.HasIndex("CompanyId");
 
                     b.HasIndex("DistributorId");
+
+                    b.HasIndex("DriverId");
 
                     b.HasIndex("ProductId");
 
@@ -560,6 +600,24 @@ namespace Pharmaflow7.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Pharmaflow7.Models.Driver", b =>
+                {
+                    b.HasOne("Pharmaflow7.Models.ApplicationUser", "ApplicationUser")
+                        .WithOne()
+                        .HasForeignKey("Pharmaflow7.Models.Driver", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Pharmaflow7.Models.ApplicationUser", "Distributor")
+                        .WithMany()
+                        .HasForeignKey("DistributorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Distributor");
+                });
+
             modelBuilder.Entity("Pharmaflow7.Models.Issue", b =>
                 {
                     b.HasOne("Pharmaflow7.Models.ApplicationUser", "Company")
@@ -609,8 +667,12 @@ namespace Pharmaflow7.Migrations
                     b.HasOne("Pharmaflow7.Models.ApplicationUser", "Distributor")
                         .WithMany()
                         .HasForeignKey("DistributorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Pharmaflow7.Models.Driver", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Pharmaflow7.Models.Product", "Product")
                         .WithMany()
@@ -623,6 +685,8 @@ namespace Pharmaflow7.Migrations
                         .HasForeignKey("StoreId");
 
                     b.Navigation("Distributor");
+
+                    b.Navigation("Driver");
 
                     b.Navigation("Product");
 

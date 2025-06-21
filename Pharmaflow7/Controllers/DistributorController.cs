@@ -429,5 +429,54 @@ namespace Pharmaflow7.Controllers
         {
             return View();
         }
+        // تعيين السائق للشحنة
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignDriverToShipment(int shipmentId, int driverId)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    _logger.LogWarning("Unauthorized access attempt to AssignDriverToShipment.");
+                    return Json(new { success = false, message = "Unauthorized access." });
+                }
+
+                var shipment = await _context.Shipments
+                    .FirstOrDefaultAsync(s => s.Id == shipmentId && s.DistributorId == user.Id);
+
+                if (shipment == null)
+                {
+                    return Json(new { success = false, message = "Shipment not found." });
+                }
+
+                // التحقق من أن السائق ينتمي للموزع
+                var driver = await _context.Drivers
+                    .FirstOrDefaultAsync(d => d.Id == driverId && d.DistributorId == user.Id);
+
+                if (driver == null)
+                {
+                    return Json(new { success = false, message = "Driver not found or not assigned to your company." });
+                }
+
+                shipment.DriverId = driverId;
+                _context.Shipments.Update(shipment);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Driver {DriverId} assigned to shipment {ShipmentId} by distributor {DistributorId}",
+                    driverId, shipmentId, user.Id);
+
+                return Json(new { success = true, message = "Driver assigned successfully!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning driver to shipment {ShipmentId}", shipmentId);
+                return Json(new { success = false, message = "An error occurred while assigning the driver." });
+            }
+        }
+
+
     }
 }
+     

@@ -269,35 +269,55 @@ namespace Pharmaflow7.Controllers
 
             try
             {
-                _logger.LogInformation("Received shipment data: ProductId={ProductId}, Destination={Destination}, DistributorId={DistributorId}, StoreId={StoreId}",
-                    model.ProductId, model.Destination, model.DistributorId, model.StoreId);
+                _logger.LogInformation("Received shipment data: ProductId={ProductId}, Destination={Destination}, DistributorId={DistributorId}, StoreId={StoreId}, DriverId={DriverId}",
+                    model.ProductId, model.Destination, model.DistributorId, model.StoreId, model.DriverId);
 
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning("Invalid model state for CreateShipment: {Errors}",
-                        string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    _logger.LogWarning("Invalid model state for CreateShipment: {Errors}", string.Join(", ", errors));
                     model.Products = await _context.Products.Where(p => p.CompanyId == user.Id).ToListAsync();
                     model.Distributors = await _userManager.Users.Where(u => u.RoleType == "distributor").ToListAsync();
                     model.Stores = string.IsNullOrEmpty(model.DistributorId)
                         ? new List<Store>()
                         : await _context.Stores.Where(s => s.DistributorId == model.DistributorId).ToListAsync();
-                    TempData["Error"] = "Please correct the errors and try again: " + string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                    TempData["Error"] = "Please correct the errors and try again: " + string.Join(", ", errors);
                     return View(model);
+                }
+
+                // Validate DriverId
+                if (model.DriverId.HasValue)
+                {
+                    var driverExists = await _context.Drivers.AnyAsync(d => d.Id == model.DriverId.Value);
+                    if (!driverExists)
+                    {
+                        ModelState.AddModelError("DriverId", "Selected driver does not exist.");
+                        _logger.LogWarning("Invalid DriverId: {DriverId}", model.DriverId);
+                        model.Products = await _context.Products.Where(p => p.CompanyId == user.Id).ToListAsync();
+                        model.Distributors = await _userManager.Users.Where(u => u.RoleType == "distributor").ToListAsync();
+                        model.Stores = string.IsNullOrEmpty(model.DistributorId)
+                            ? new List<Store>()
+                            : await _context.Stores.Where(s => s.DistributorId == model.DistributorId).ToListAsync();
+                        TempData["Error"] = "Invalid driver selected.";
+                        return View(model);
+                    }
                 }
 
                 var shipment = new Shipment
                 {
                     ProductId = model.ProductId,
                     Destination = model.Destination,
-                    DistributorId = string.IsNullOrEmpty(model.DistributorId) ? null : model.DistributorId,
+                    DistributorId = model.DistributorId,
                     StoreId = model.StoreId.HasValue && model.StoreId != 0 ? model.StoreId : null,
+                    DriverId = model.DriverId,
                     CompanyId = user.Id,
-                    Status = "Pending"  
+                    Status = "Pending"
                 };
+
                 _context.Shipments.Add(shipment);
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Shipment {ShipmentId} created by company {CompanyId} with StoreId={StoreId}",
-                    shipment.Id, user.Id, shipment.StoreId);
+                _logger.LogInformation("Shipment {ShipmentId} created by company {CompanyId} with StoreId={StoreId} and DriverId={DriverId}",
+                    shipment.Id, user.Id, shipment.StoreId, shipment.DriverId);
 
                 return RedirectToAction("CompanyDashboard");
             }
@@ -313,7 +333,6 @@ namespace Pharmaflow7.Controllers
                 return View(model);
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> GetStores(string distributorId)
         {
@@ -519,5 +538,49 @@ namespace Pharmaflow7.Controllers
                 return StatusCode(500, "An error occurred while loading the reports.");
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetDrivers(string distributorId)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "company")
+                {
+                    _logger.LogWarning("Unauthorized access attempt to GetDrivers by user {UserId}", User?.Identity?.Name);
+                    return Unauthorized();
+                }
+
+                if (string.IsNullOrEmpty(distributorId))
+                {
+                    _logger.LogWarning("GetDrivers called with empty distributorId.");
+                    return BadRequest(new { message = "Distributor ID is required." });
+                }
+
+                _logger.LogInformation("Fetching drivers for distributorId: {DistributorId}", distributorId);
+
+                var drivers = await _context.Drivers
+                    .Where(d => d.DistributorId == distributorId)
+                    .Include(d => d.ApplicationUser)
+                    .Select(d => new
+                    {
+                        Id = d.Id, // int
+                        fullName = d.ApplicationUser != null ? d.ApplicationUser.FullName : "Unknown",
+                        licenseNumber = d.LicenseNumber ?? "N/A",
+                        contactNumber = d.ApplicationUser != null ? d.ApplicationUser.ContactNumber : "N/A"
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("Found {DriverCount} drivers for distributorId: {DistributorId}", drivers.Count, distributorId);
+
+                return Json(drivers); // Returns empty array if no drivers found
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching drivers for distributorId: {DistributorId}", distributorId);
+                return Json(new { success = false, message = "An error occurred while fetching drivers." });
+            }
+        }
     }
+    
+
 }

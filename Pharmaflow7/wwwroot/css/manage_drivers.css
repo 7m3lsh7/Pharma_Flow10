@@ -1,0 +1,239 @@
+/* Manage Drivers Styles */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+.dashboard-container h1 {
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.dashboard-container h1 i {
+    color: #3498db;
+}
+
+/* Actions Section */
+.actions {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5f8b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+    transform: translateY(-2px);
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
+/* Drivers Table */
+.drivers-table {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.drivers-table h2 {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+    color: white;
+    margin: 0;
+    padding: 20px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.drivers-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.drivers-table th,
+.drivers-table td {
+    padding: 15px;
+    text-align: right;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.drivers-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.drivers-table td {
+    color: #34495e;
+    font-size: 14px;
+}
+
+.drivers-table tr:hover {
+    background: #f8f9fa;
+    transition: background 0.3s ease;
+}
+
+.no-data {
+    text-align: center !important;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 40px !important;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Messages */
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 300px;
+    animation: slideIn 0.3s ease;
+}
+
+.message.success {
+    background: linear-gradient(135deg, #27ae60, #229954);
+}
+
+.message.error {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 15px;
+    }
+    
+    .dashboard-container h1 {
+        font-size: 2rem;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .drivers-table {
+        overflow-x: auto;
+    }
+    
+    .drivers-table table {
+        min-width: 600px;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+

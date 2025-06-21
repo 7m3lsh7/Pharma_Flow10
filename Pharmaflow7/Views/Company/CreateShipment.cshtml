@@ -44,10 +44,17 @@
             </div>
             <div class="mb-3">
                 <label asp-for="StoreId" class="form-label">Store</label>
-                <select asp-for="StoreId" class="form-control" id="storeSelect" name="StoreId">
+                <select asp-for="StoreId" class="form-control" id="storeSelect">
                     <option value="">Select a distributor first</option>
                 </select>
                 <span asp-validation-for="StoreId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DriverId" class="form-label">Driver</label>
+                <select asp-for="DriverId" class="form-control" id="driverSelect">
+                    <option value="">Select a driver</option>
+                </select>
+                <span asp-validation-for="DriverId" class="text-danger"></span>
             </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
@@ -57,23 +64,30 @@
     <script>
         const distributorSelect = document.getElementById("distributorSelect");
         const storeSelect = document.getElementById("storeSelect");
+        const driverSelect = document.getElementById("driverSelect");
         const form = document.getElementById("createShipmentForm");
         let isFetchingStores = false;
+        let isFetchingDrivers = false;
 
         distributorSelect.addEventListener("change", function () {
             const distributorId = this.value;
+            console.log("Selected DistributorId:", distributorId);
             storeSelect.innerHTML = '<option value="">Select a store</option>';
+            driverSelect.innerHTML = '<option value="">Select a driver</option>';
+
             if (distributorId) {
-                const url = `${window.location.origin}/Company/GetStores?distributorId=${distributorId}`;
-                console.log("Fetching stores from:", url);
+                // Fetch stores
+                const storesUrl = `${window.location.origin}/Company/GetStores?distributorId=${distributorId}`;
+                console.log("Fetching stores from:", storesUrl);
                 isFetchingStores = true;
-                fetch(url, {
+                fetch(storesUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
                     }
                 })
                 .then(response => {
+                    console.log("Stores response status:", response.status);
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
@@ -83,8 +97,8 @@
                     console.log("Stores received:", stores);
                     stores.forEach(store => {
                         const option = document.createElement("option");
-                        option.value = store.id;
-                        option.text = store.storeName;
+                        option.value = store.id; // Store id may be lowercase
+                        option.text = store.storeName || 'Unknown';
                         storeSelect.appendChild(option);
                     });
                     isFetchingStores = false;
@@ -94,6 +108,54 @@
                     storeSelect.innerHTML = '<option value="">Error loading stores</option>';
                     isFetchingStores = false;
                 });
+
+                // Fetch drivers
+                const driversUrl = `${window.location.origin}/Company/GetDrivers?distributorId=${distributorId}`;
+                console.log("Fetching drivers from:", driversUrl);
+                isFetchingDrivers = true;
+                fetch(driversUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    console.log("Drivers response status:", response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(drivers => {
+                    console.log("Drivers received:", drivers);
+                    driverSelect.innerHTML = '<option value="">Select a driver</option>';
+                    if (drivers && Array.isArray(drivers) && drivers.length > 0) {
+                        drivers.forEach(driver => {
+                            // Handle both Id and id for case sensitivity
+                            const driverId = driver.Id !== undefined ? driver.Id : driver.id;
+                            if (driverId !== undefined && Number.isInteger(Number(driverId))) {
+                                const option = document.createElement("option");
+                                option.value = driverId;
+                                option.text = `${driver.fullName || 'Unknown'} - ${driver.licenseNumber || 'N/A'}`;
+                                driverSelect.appendChild(option);
+                            } else {
+                                console.warn("Invalid driver Id:", driver);
+                            }
+                        });
+                    } else {
+                        console.log("No drivers available or invalid response.");
+                        driverSelect.innerHTML = '<option value="">No drivers available</option>';
+                    }
+                    isFetchingDrivers = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching drivers:', error);
+                    driverSelect.innerHTML = '<option value="">Error loading drivers</option>';
+                    isFetchingDrivers = false;
+                });
+            } else {
+                storeSelect.innerHTML = '<option value="">Select a distributor first</option>';
+                driverSelect.innerHTML = '<option value="">Select a distributor first</option>';
             }
         });
 
@@ -102,6 +164,7 @@
             const destination = document.getElementById("Destination").value;
             const distributorId = distributorSelect.value;
             const storeId = storeSelect.value;
+            let driverId = driverSelect.value;
 
             if (!productId || !destination) {
                 e.preventDefault();
@@ -109,9 +172,9 @@
                 return;
             }
 
-            if (isFetchingStores) {
+            if (isFetchingStores || isFetchingDrivers) {
                 e.preventDefault();
-                alert("Please wait until stores are loaded.");
+                alert("Please wait until data is loaded.");
                 return;
             }
 
@@ -121,11 +184,20 @@
                 return;
             }
 
+            // Validate DriverId
+            if (driverId && (driverId === "undefined" || isNaN(Number(driverId)))) {
+                e.preventDefault();
+                alert("Please select a valid driver or leave it unselected.");
+                driverId = ""; // Reset to empty to map to null
+                driverSelect.value = "";
+            }
+
             console.log("Form submitted with data:", {
                 ProductId: productId,
                 Destination: destination,
                 DistributorId: distributorId || "Not Assigned",
-                StoreId: storeId || "Not Assigned"
+                StoreId: storeId || "Not Assigned",
+                DriverId: driverId || "Not Assigned"
             });
         });
     </script>

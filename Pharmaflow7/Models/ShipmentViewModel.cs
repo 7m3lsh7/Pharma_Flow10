@@ -12,6 +12,7 @@ namespace Pharmaflow7.Models
         public string? DistributorId { get; set; } // اختياري (nullable)
         public int? StoreId { get; set; } // اختياري (nullable بالفعل)
         public string? Status { get; set; } // اختياري (nullable)
+        public int? DriverId { get; set; }
         public List<Product>? Products { get; set; } // اختياري (nullable)
         public IList<ApplicationUser>? Distributors { get; set; } // اختياري (nullable)
         public List<Store>? Stores { get; set; } // اختياري (nullable)

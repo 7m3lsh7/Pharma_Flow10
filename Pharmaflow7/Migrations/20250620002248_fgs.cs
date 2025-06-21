@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Pharmaflow7.Migrations
 {
     /// <inheritdoc />
-    public partial class adasx : Migration
+    public partial class fgs : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -219,6 +219,35 @@ namespace Pharmaflow7.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Drivers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LicenseNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NationalId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DistributorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    DateHired = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Drivers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Drivers_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Drivers_AspNetUsers_DistributorId",
+                        column: x => x.DistributorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -307,8 +336,9 @@ namespace Pharmaflow7.Migrations
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CompanyId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    DistributorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DistributorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     StoreId = table.Column<int>(type: "int", nullable: true),
+                    DriverId = table.Column<int>(type: "int", nullable: true),
                     IsAcceptedByDistributor = table.Column<bool>(type: "bit", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -326,6 +356,12 @@ namespace Pharmaflow7.Migrations
                         name: "FK_Shipments_AspNetUsers_DistributorId",
                         column: x => x.DistributorId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Shipments_Drivers_DriverId",
+                        column: x => x.DriverId,
+                        principalTable: "Drivers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -381,6 +417,17 @@ namespace Pharmaflow7.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Drivers_ApplicationUserId",
+                table: "Drivers",
+                column: "ApplicationUserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Drivers_DistributorId",
+                table: "Drivers",
+                column: "DistributorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Issues_CompanyId",
                 table: "Issues",
                 column: "CompanyId");
@@ -409,6 +456,11 @@ namespace Pharmaflow7.Migrations
                 name: "IX_Shipments_DistributorId",
                 table: "Shipments",
                 column: "DistributorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_DriverId",
+                table: "Shipments",
+                column: "DriverId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Shipments_ProductId",
@@ -461,6 +513,9 @@ namespace Pharmaflow7.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Drivers");
 
             migrationBuilder.DropTable(
                 name: "Products");

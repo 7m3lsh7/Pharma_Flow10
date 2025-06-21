@@ -1,0 +1,143 @@
+@model List<Pharmaflow7.Models.Driver>
+
+@{
+    ViewData["Title"] = "إدارة السائقين";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إدارة السائقين</title>
+<link rel="stylesheet" href="~/css/manage_drivers.css">
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- Main Content -->
+<div class="dashboard-container">
+    <h1><i class="fas fa-users"></i> إدارة السائقين</h1>
+    
+    <!-- Actions -->
+    <div class="actions">
+        <a href="@Url.Action("AddDriver", "Driver")" class="btn btn-primary">
+            <i class="fas fa-plus"></i> إضافة سائق جديد
+        </a>
+        <button id="refresh-btn" class="btn btn-secondary">
+            <i class="fas fa-sync-alt"></i> تحديث البيانات
+        </button>
+    </div>
+
+    <!-- Drivers Table -->
+    <div class="drivers-table">
+        <h2><i class="fas fa-table"></i> قائمة السائقين</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>الاسم الكامل</th>
+                    <th>رقم الرخصة</th>
+                    <th>رقم البطاقة</th>
+                    <th>رقم الهاتف</th>
+                    <th>تاريخ التعيين</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="drivers-body">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var driver in Model)
+                    {
+                        <tr>
+                            <td>@driver.ApplicationUser?.FullName</td>
+                            <td>@driver.LicenseNumber</td>
+                            <td>@driver.NationalId</td>
+                            <td>@driver.ApplicationUser?.ContactNumber</td>
+                            <td>@driver.DateHired.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <a href="@Url.Action("EditDriver", "Driver", new { id = driver.Id })" class="btn btn-edit">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </a>
+                                <button onclick="deleteDriver('@driver.Id')" class="btn btn-delete">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="no-data">لا توجد سائقين مسجلين</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading" style="display: none;">
+    <div class="spinner"></div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="message-container"></div>
+
+<script>
+    // تحديث البيانات
+    document.getElementById('refresh-btn').addEventListener('click', function() {
+        location.reload();
+    });
+
+    // حذف السائق
+    function deleteDriver(driverId) {
+        if (confirm('هل أنت متأكد من حذف هذا السائق؟')) {
+            document.getElementById('loading').style.display = 'flex';
+            
+            fetch('@Url.Action("DeleteDriver", "Driver")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: 'id=' + encodeURIComponent(driverId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                showMessage('حدث خطأ أثناء حذف السائق', 'error');
+                console.error('Error:', error);
+            });
+        }
+    }
+
+    // عرض الرسائل
+    function showMessage(message, type) {
+        const messageContainer = document.getElementById('message-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        messageDiv.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            ${message}
+        `;
+        
+        messageContainer.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.remove();
+        }, 5000);
+    }
+</script>
+
+@Html.AntiForgeryToken()
+

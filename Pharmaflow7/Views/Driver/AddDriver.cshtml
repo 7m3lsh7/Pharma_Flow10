@@ -1,0 +1,160 @@
+@model Pharmaflow7.Models.AddDriverViewModel
+
+@{
+    ViewData["Title"] = "إضافة سائق جديد";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إضافة سائق جديد</title>
+<link rel="stylesheet" href="~/css/add_driver.css">
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- Main Content -->
+<div class="form-container">
+    <div class="form-header">
+        <h1><i class="fas fa-user-plus"></i> إضافة سائق جديد</h1>
+        <p>قم بإدخال بيانات السائق الجديد</p>
+    </div>
+
+    <form asp-action="AddDriver" asp-controller="Driver" method="post" class="driver-form">
+        @Html.AntiForgeryToken()
+
+        <!-- Personal Information Section -->
+        <div class="form-section">
+            <h3><i class="fas fa-user"></i> البيانات الشخصية</h3>
+
+            <div class="form-group">
+                <label for="FullName">
+                    <i class="fas fa-user"></i> الاسم الكامل
+                </label>
+                <input type="text" id="FullName" name="FullName" required
+                       placeholder="أدخل الاسم الكامل للسائق" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="Email">
+                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                </label>
+                <input type="email" id="Email" name="Email" required
+                       placeholder="أدخل البريد الإلكتروني" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="ContactNumber">
+                    <i class="fas fa-phone"></i> رقم الهاتف
+                </label>
+                <input type="tel" id="ContactNumber" name="ContactNumber" required
+                       placeholder="أدخل رقم الهاتف" />
+                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- License Information Section -->
+        <div class="form-section">
+            <h3><i class="fas fa-id-card"></i> بيانات الرخصة والهوية</h3>
+
+            <div class="form-group">
+                <label for="LicenseNumber">
+                    <i class="fas fa-id-badge"></i> رقم الرخصة
+                </label>
+                <input type="text" id="LicenseNumber" name="LicenseNumber" required
+                       placeholder="أدخل رقم رخصة القيادة" />
+                <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="NationalId">
+                    <i class="fas fa-id-card"></i> رقم البطاقة الشخصية
+                </label>
+                <input type="text" id="NationalId" name="NationalId" required
+                       placeholder="أدخل رقم البطاقة الشخصية" />
+                <span asp-validation-for="NationalId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> حفظ السائق
+            </button>
+            <a href="@Url.Action("ManageDrivers", "Driver")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> العودة إلى القائمة
+            </a>
+        </div>
+
+        <!-- Validation Summary -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="validation-summary">
+                <h4><i class="fas fa-exclamation-triangle"></i> يرجى تصحيح الأخطاء التالية:</h4>
+                <ul>
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+    </form>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading" style="display: none;">
+    <div class="spinner"></div>
+</div>
+
+@section Scripts {
+    <script>
+        // Form validation and submission
+        document.querySelector('.driver-form').addEventListener('submit', function(e) {
+            const requiredFields = this.querySelectorAll('input[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('error');
+                } else {
+                    field.classList.remove('error');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                showMessage('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+
+            // Show loading overlay
+            document.getElementById('loading').style.display = 'flex';
+        });
+
+        // Remove error styling on input
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+            });
+        });
+
+        // Show messages
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                ${message}
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    </script>
+}

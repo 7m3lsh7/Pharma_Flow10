@@ -19,6 +19,7 @@ namespace Pharmaflow7.Data
         public DbSet<Shipment> Shipments { get; set; }
         public DbSet<Issue> Issues { get; set; }
         public DbSet<Store> Stores { get; set; }
+        public DbSet<Driver> Drivers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -75,9 +76,26 @@ namespace Pharmaflow7.Data
                 .WithMany()
                 .HasForeignKey(s => s.CompanyId)
                 .OnDelete(DeleteBehavior.Restrict); // ✅ تغيير إلى Restrict
+
+            // تكوين علاقات Driver
+            modelBuilder.Entity<Driver>()
+                .HasOne(d => d.ApplicationUser)
+                .WithOne()
+                .HasForeignKey<Driver>(d => d.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Cascade); // حذف السائق عند حذف المستخدم
+
+            modelBuilder.Entity<Driver>()
+                .HasOne(d => d.Distributor)
+                .WithMany()
+                .HasForeignKey(d => d.DistributorId)
+                .OnDelete(DeleteBehavior.Restrict); // منع حذف الموزع إذا كان لديه سائقين
+
+            // تكوين علاقة Shipment مع Driver
+            modelBuilder.Entity<Shipment>()
+                .HasOne(s => s.Driver)
+                .WithMany()
+                .HasForeignKey(s => s.DriverId)
+                .OnDelete(DeleteBehavior.Restrict); // منع حذف السائق إذا كان لديه شحنات
         }
-    
-
-
-}
+    }
 }
