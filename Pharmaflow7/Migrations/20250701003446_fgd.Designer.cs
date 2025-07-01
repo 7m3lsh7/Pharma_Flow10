@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pharmaflow7.Data;
 
@@ -11,9 +12,11 @@ using Pharmaflow7.Data;
 namespace Pharmaflow7.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701003446_fgd")]
+    partial class fgd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -468,12 +471,6 @@ namespace Pharmaflow7.Migrations
                     b.Property<string>("Destination")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("DestinationLatitude")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("DestinationLongitude")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("DistributorId")
                         .HasColumnType("nvarchar(450)");

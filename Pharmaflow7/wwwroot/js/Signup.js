@@ -1,7 +1,7 @@
 ﻿let currentStep = 1;
 function adjustFields() {
     const userType = document.getElementById('userType').value;
-    document.getElementById('consumerFields').style.display = userType === 'consumer' ? 'block' : 'none';
+    document.getElementById('DriverFields').style.display = userType === 'driver' ? 'block' : 'none';
     document.getElementById('companyFields').style.display = userType === 'company' ? 'block' : 'none';
     document.getElementById('distributorFields').style.display = userType === 'distributor' ? 'block' : 'none';
 }

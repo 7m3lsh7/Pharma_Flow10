@@ -9,17 +9,23 @@ namespace Pharmaflow7.Models
         public int ProductId { get; set; }
         [Required, StringLength(100, MinimumLength = 2)]
         public string Destination { get; set; }
-        public string? DistributorId { get; set; } // اختياري (nullable)
-        public int? StoreId { get; set; } // اختياري (nullable بالفعل)
-        public string? Status { get; set; } // اختياري (nullable)
+        public string? DistributorId { get; set; }
+        public int? StoreId { get; set; }
+        public string? Status { get; set; }
         public int? DriverId { get; set; }
-        public List<Product>? Products { get; set; } // اختياري (nullable)
-        public IList<ApplicationUser>? Distributors { get; set; } // اختياري (nullable)
-        public List<Store>? Stores { get; set; } // اختياري (nullable)
-        public string? ProductName { get; set; } // اختياري (nullable)
-        public string? StoreAddress { get; set; } // اختياري (nullable)
-        public string? CurrentLocation { get; set; } // اختياري (nullable)
-        public string? DistributorName { get; set; } // اختياري (nullable)
-        public bool? IsAcceptedByDistributor { get; set; } // nullable بالفعل
+        public List<Product>? Products { get; set; }
+        public IList<ApplicationUser>? Distributors { get; set; }
+        public List<Store>? Stores { get; set; }
+        public string? ProductName { get; set; }
+        public string? StoreAddress { get; set; }
+        public string? CurrentLocation { get; set; }
+        public string? DistributorName { get; set; }
+        public bool? IsAcceptedByDistributor { get; set; }
+        public double? Latitude { get; set; } // Changed to double?
+        public double? Longitude { get; set; } // Changed to double?
+        public double? DestinationLatitude { get; set; }
+        public double? DestinationLongitude { get; set; }
+        public string? DriverFullName { get; set; }
+        public string? DriverName { get; set; }
     }
 }

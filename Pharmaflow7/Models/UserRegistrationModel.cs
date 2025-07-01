@@ -17,6 +17,7 @@ namespace Pharmaflow7.Models
         public string RoleType { get; set; }
 
         public string FullName { get; set; }
+
         public string Address { get; set; }
         public string CompanyName { get; set; }
         public string LicenseNumber { get; set; }
@@ -24,5 +25,6 @@ namespace Pharmaflow7.Models
         public string DistributorContactNumber { get; set; } // للموزع
         public string DistributorName { get; set; }
         public string WarehouseAddress { get; set; }
+        public string? NationalId { get; set; }
     }
 }

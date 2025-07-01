@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pharmaflow7.Data;
+using Pharmaflow7.Hubs;
 using Pharmaflow7.Models;
 using System;
 using System.Security.Claims;
@@ -24,9 +24,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // Serialize Id as id
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; // Handle reference loops
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
+
 // Identity Configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -43,21 +44,19 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Authentication with Google and Facebook
+// Authentication with Google
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     });
-   
 
-// Cookie Configuration
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SameSite = SameSiteMode.Lax; // Lax عشان SignalR و AJAX
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.LoginPath = "/Auth/Login";
     options.LogoutPath = "/Auth/Logout";
@@ -67,11 +66,28 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Events.OnSigningIn = async context =>
     {
         var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
-        var user = await userManager.GetUserAsync(context.Principal);
-        if (user != null && user.RoleType != null)
+        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+        try
         {
-            var claims = new List<Claim> { new Claim("RoleType", user.RoleType) };
-            context.Principal.AddIdentity(new ClaimsIdentity(claims));
+            var user = await userManager.GetUserAsync(context.Principal);
+            if (user != null && user.RoleType != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Role, user.RoleType),
+                    new Claim("RoleType", user.RoleType)
+                };
+                context.Principal.AddIdentity(new ClaimsIdentity(claims));
+                logger.LogInformation("Signing in user {UserId} with RoleType {RoleType}", user.Id, user.RoleType);
+            }
+            else
+            {
+                logger.LogWarning("User not found or RoleType is null during sign-in for {UserName}", context.Principal.Identity.Name);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error during OnSigningIn for {UserName}", context.Principal.Identity.Name);
         }
     };
 });
@@ -94,13 +110,22 @@ builder.Services.AddLogging(logging =>
 });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
 // Seed Roles
 using (var scope = app.Services.CreateScope())
 {
-    await RoleSeeder.SeedRolesAsync(scope.ServiceProvider);
+    try
+    {
+        await RoleSeeder.SeedRolesAsync(scope.ServiceProvider);
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error seeding roles during application startup.");
+    }
 }
 
 // Middleware Pipeline
@@ -112,15 +137,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseCookiePolicy();  
+app.UseCookiePolicy();
 app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<AuthenticationMiddleware>();
+// Removed UseMiddleware<AuthenticationMiddleware> to avoid interference
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapHub<TrackingHub>("/trackingHub");
 
 app.Run();
 
@@ -130,7 +156,7 @@ public static class RoleSeeder
     public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        string[] roles = { "consumer", "company", "distributor" };
+        string[] roles = { "driver", "company", "distributor" };
 
         foreach (var role in roles)
         {

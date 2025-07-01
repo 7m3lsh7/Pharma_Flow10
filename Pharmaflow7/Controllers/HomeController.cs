@@ -1,14 +1,15 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Pharmaflow7.Models;
+using System.Diagnostics;
 
 namespace Pharmaflow7.Controllers
 {
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        public HomeController(UserManager<ApplicationUser> userManager) : base(userManager) { }
+        public HomeController(UserManager<ApplicationUser> userManager, ILogger<HomeController> logger) : base(userManager, logger) { }
 
 
 
@@ -22,13 +23,13 @@ namespace Pharmaflow7.Controllers
                 {
                     "company" => "CompanyDashboard",
                     "distributor" => "dashboard",
-                    "consumer" => "ConsumerDashboard",
+                    "driver" => "AddDriver",
                     _ => "Index"
                 }, roleType switch
                 {
                     "company" => "Company",
                     "distributor" => "Distributor",
-                    "consumer" => "Consumer",
+                    "driver" => "Driver",
                     _ => "Home"
                 });
             }

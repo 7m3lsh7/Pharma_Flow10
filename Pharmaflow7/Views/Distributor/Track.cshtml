@@ -1,0 +1,124 @@
+﻿@model IEnumerable<Pharmaflow7.Models.ShipmentViewModel>
+
+@{
+    ViewData["Title"] = "تتبع الشحنات";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تتبع الشحنات</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="~/css/track_shipments.css">
+
+<div class="container">
+    <h1><i class="fas fa-map"></i> تتبع الشحنات</h1>
+
+    @if (!Model.Any())
+    {
+        <p class="no-shipments">لا توجد شحنات متاحة للتتبع حاليًا.</p>
+    }
+    else
+    {
+        <div id="map" style="height: 500px;"></div>
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>اسم المنتج</th>
+                    <th>الوجهة</th>
+                    <th>الحالة</th>
+                    <th>اسم السائق</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var shipment in Model)
+                {
+                    <tr>
+                        <td>@shipment.ProductName</td>
+                        <td>@shipment.Destination</td>
+                        <td>@shipment.Status</td>
+                        <td>@shipment.DriverFullName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+    <script>
+        var map = L.map('map').setView([30.0444, 31.2357], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var truckMarkers = {};
+        var routes = {};
+
+        @foreach (var shipment in Model)
+        {
+                if (shipment.DestinationLatitude.HasValue && shipment.DestinationLongitude.HasValue)
+                {
+                        var latitude = shipment.Latitude.HasValue ? shipment.Latitude.Value : 30.0444;
+                        var longitude = shipment.Longitude.HasValue ? shipment.Longitude.Value : 31.2357;
+                        <text>
+                            truckMarkers[@shipment.Id] = L.marker([@latitude, @longitude])
+                                .addTo(map)
+                                .bindPopup(`شحنة: @shipment.Id<br>السائق: @shipment.DriverFullName<br>الحالة: @shipment.Status`);
+
+                            routes[@shipment.Id] = L.Routing.control({
+                                waypoints: [
+                                    L.latLng(@latitude, @longitude),
+                                    L.latLng(@shipment.DestinationLatitude.Value, @shipment.DestinationLongitude.Value)
+                                ],
+                                routeWhileDragging: false,
+                                lineOptions: { styles: [{ color: 'blue', weight: 5 }] }
+                            }).addTo(map);
+                        </text>
+                }
+        }
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/trackingHub")
+            .build();
+
+        connection.on("ReceiveLocationUpdate", (shipmentId, latitude, longitude, status) => {
+            console.log(`Received location update for shipment ${shipmentId}: (${latitude}, ${longitude})`);
+            if (truckMarkers[shipmentId]) {
+                truckMarkers[shipmentId].setLatLng([latitude, longitude]);
+                truckMarkers[shipmentId].setPopupContent(`شحنة: ${shipmentId}<br>الحالة: ${status}`);
+                routes[shipmentId].spliceWaypoints(0, 1, L.latLng(latitude, longitude));
+            }
+        });
+
+        connection.on("TripStarted", (shipmentId, status) => {
+            showMessage(`تم بدء الرحلة للشحنة ${shipmentId}!`, 'success');
+        });
+
+        connection.on("TripEnded", (shipmentId, status) => {
+            showMessage(`تم إنهاء الرحلة للشحنة ${shipmentId}!`, 'success');
+        });
+
+        connection.start().catch(err => {
+            console.error("SignalR Connection Error: ", err.toString());
+            showMessage('فشل الاتصال بـ SignalR. يرجى إعادة تحميل الصفحة.', 'error');
+        });
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => messageDiv.remove(), 5000);
+        }
+    </script>
+}

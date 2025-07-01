@@ -12,15 +12,15 @@ using Pharmaflow7.Data;
 namespace Pharmaflow7.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250620002248_fgs")]
-    partial class fgs
+    [Migration("20250701020503_fgdas")]
+    partial class fgdas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "9.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -285,11 +285,20 @@ namespace Pharmaflow7.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ContactNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateHired")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DistributorId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LicenseNumber")
                         .IsRequired()
@@ -374,6 +383,40 @@ namespace Pharmaflow7.Migrations
                     b.ToTable("loginViewModels");
                 });
 
+            modelBuilder.Entity("Pharmaflow7.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ShipmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShipmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("Pharmaflow7.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -428,6 +471,12 @@ namespace Pharmaflow7.Migrations
                     b.Property<string>("Destination")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("DestinationLatitude")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("DestinationLongitude")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("DistributorId")
                         .HasColumnType("nvarchar(450)");
@@ -534,6 +583,9 @@ namespace Pharmaflow7.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("NationalId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -550,6 +602,35 @@ namespace Pharmaflow7.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("userRegistrationModels");
+                });
+
+            modelBuilder.Entity("Pharmaflow7.Models.VehicleLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Latitude")
+                        .HasPrecision(18, 9)
+                        .HasColumnType("decimal(18,9)");
+
+                    b.Property<decimal>("Longitude")
+                        .HasPrecision(18, 9)
+                        .HasColumnType("decimal(18,9)");
+
+                    b.Property<int>("ShipmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShipmentId");
+
+                    b.ToTable("VehicleLocations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -614,7 +695,8 @@ namespace Pharmaflow7.Migrations
                     b.HasOne("Pharmaflow7.Models.ApplicationUser", "Distributor")
                         .WithMany()
                         .HasForeignKey("DistributorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("ApplicationUser");
 
@@ -646,6 +728,23 @@ namespace Pharmaflow7.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("ReportedBy");
+                });
+
+            modelBuilder.Entity("Pharmaflow7.Models.Notification", b =>
+                {
+                    b.HasOne("Pharmaflow7.Models.Shipment", "Shipment")
+                        .WithMany()
+                        .HasForeignKey("ShipmentId");
+
+                    b.HasOne("Pharmaflow7.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shipment");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Pharmaflow7.Models.Product", b =>
@@ -705,6 +804,22 @@ namespace Pharmaflow7.Migrations
                         .IsRequired();
 
                     b.Navigation("Distributor");
+                });
+
+            modelBuilder.Entity("Pharmaflow7.Models.VehicleLocation", b =>
+                {
+                    b.HasOne("Pharmaflow7.Models.Shipment", "Shipment")
+                        .WithMany("VehicleLocations")
+                        .HasForeignKey("ShipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shipment");
+                });
+
+            modelBuilder.Entity("Pharmaflow7.Models.Shipment", b =>
+                {
+                    b.Navigation("VehicleLocations");
                 });
 #pragma warning restore 612, 618
         }

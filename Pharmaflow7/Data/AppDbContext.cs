@@ -11,7 +11,6 @@ namespace Pharmaflow7.Data
         {
         }
 
-        // إزالة DbSets للـ ViewModels لأنها ليست كيانات مخزنة
         public DbSet<UserRegistrationModel> userRegistrationModels { get; set; }
         public DbSet<LoginViewModel> loginViewModels { get; set; }
         public DbSet<DashboardViewModel> dashboardViewModels { get; set; }
@@ -20,82 +19,103 @@ namespace Pharmaflow7.Data
         public DbSet<Issue> Issues { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<Driver> Drivers { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<VehicleLocation> VehicleLocations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // تكوين علاقة Shipment مع Store
+            // إعدادات VehicleLocation
+            modelBuilder.Entity<VehicleLocation>()
+                .Property(v => v.Latitude)
+                .HasColumnType("decimal(18,9)")
+                .HasPrecision(18, 9);
+
+            modelBuilder.Entity<VehicleLocation>()
+                .Property(v => v.Longitude)
+                .HasColumnType("decimal(18,9)")
+                .HasPrecision(18, 9);
+
+            // باقي الإعدادات
+            modelBuilder.Entity<Driver>()
+                .HasOne(d => d.ApplicationUser)
+                .WithOne()
+                .HasForeignKey<Driver>(d => d.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Shipment)
+                .WithMany()
+                .HasForeignKey(n => n.ShipmentId);
+
+            modelBuilder.Entity<Shipment>()
+                .HasOne(s => s.Driver)
+                .WithMany()
+                .HasForeignKey(s => s.DriverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<VehicleLocation>()
+                .HasOne(v => v.Shipment)
+                .WithMany(s => s.VehicleLocations)
+                .HasForeignKey(v => v.ShipmentId);
+
             modelBuilder.Entity<Shipment>()
                 .HasOne(s => s.Store)
                 .WithMany()
                 .HasForeignKey(s => s.StoreId);
 
-            // تكوين علاقات Issue
             modelBuilder.Entity<Issue>()
                 .HasOne(i => i.Company)
                 .WithMany()
                 .HasForeignKey(i => i.CompanyId)
-                .OnDelete(DeleteBehavior.NoAction); // منع الـ cascade delete
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Issue>()
                 .HasOne(i => i.ReportedBy)
                 .WithMany()
                 .HasForeignKey(i => i.ReportedById)
-                .OnDelete(DeleteBehavior.NoAction); // منع الـ cascade delete
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Issue>()
                 .HasOne(i => i.Product)
                 .WithMany()
                 .HasForeignKey(i => i.ProductId);
 
-            // العلاقة بين Product و ApplicationUser (الشركة المنتجة)
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Company)
                 .WithMany()
                 .HasForeignKey(p => p.CompanyId)
-                .OnDelete(DeleteBehavior.Restrict); // ✅ تغيير إلى Restrict بدلاً من NoAction
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // العلاقة بين Shipment و Product
             modelBuilder.Entity<Shipment>()
                 .HasOne(s => s.Product)
                 .WithMany()
                 .HasForeignKey(s => s.ProductId)
-                .OnDelete(DeleteBehavior.Cascade); // ✅ يسمح بحذف الشحنات عند حذف المنتج
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // العلاقة بين Shipment و Distributor
             modelBuilder.Entity<Shipment>()
                 .HasOne(s => s.Distributor)
                 .WithMany()
                 .HasForeignKey(s => s.DistributorId)
-                .OnDelete(DeleteBehavior.Restrict); // ✅ تغيير إلى Restrict
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // العلاقة بين Shipment و ApplicationUser (الشركة)
             modelBuilder.Entity<Shipment>()
                 .HasOne<ApplicationUser>()
                 .WithMany()
                 .HasForeignKey(s => s.CompanyId)
-                .OnDelete(DeleteBehavior.Restrict); // ✅ تغيير إلى Restrict
-
-            // تكوين علاقات Driver
-            modelBuilder.Entity<Driver>()
-                .HasOne(d => d.ApplicationUser)
-                .WithOne()
-                .HasForeignKey<Driver>(d => d.ApplicationUserId)
-                .OnDelete(DeleteBehavior.Cascade); // حذف السائق عند حذف المستخدم
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Driver>()
                 .HasOne(d => d.Distributor)
                 .WithMany()
                 .HasForeignKey(d => d.DistributorId)
-                .OnDelete(DeleteBehavior.Restrict); // منع حذف الموزع إذا كان لديه سائقين
-
-            // تكوين علاقة Shipment مع Driver
-            modelBuilder.Entity<Shipment>()
-                .HasOne(s => s.Driver)
-                .WithMany()
-                .HasForeignKey(s => s.DriverId)
-                .OnDelete(DeleteBehavior.Restrict); // منع حذف السائق إذا كان لديه شحنات
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

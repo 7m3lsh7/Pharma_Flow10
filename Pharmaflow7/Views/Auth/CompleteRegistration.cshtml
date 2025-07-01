@@ -31,7 +31,7 @@
             <div class="mb-3 position-relative">
                 <select class="form-control rounded-pill ps-5" asp-for="RoleType" id="userType" required onchange="adjustFields()">
                     <option value="">Select User Type</option>
-                    <option value="consumer">Consumer</option>
+                    @* <option value="driver">Driver</option> *@
                     <option value="company">Pharmaceutical Company</option>
                     <option value="distributor">Distributor</option>
                 </select>
@@ -39,7 +39,7 @@
                 <span asp-validation-for="RoleType" class="text-danger"></span>
             </div>
 
-            <div id="consumerFields" style="display: none;">
+            <div id="DriverFields" style="display: none;">
                 <div class="mb-3 position-relative">
                     <input type="text" class="form-control rounded-pill ps-5" asp-for="FullName" id="fullName" placeholder="Full Name" required>
                     <i class="H fas fa-user position-absolute top-50 start-0 translate-middle-y ms-3 text-white"></i>

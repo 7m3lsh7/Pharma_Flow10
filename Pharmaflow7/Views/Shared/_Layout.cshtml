@@ -342,6 +342,20 @@
                                                 <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
                                             </ul>
                                         </li>
+                            }    else if (userRole == "driver")
+                            {
+                                        <li class="nav-item">
+                                            <a class="nav-link" asp-area="" asp-controller="Driver" asp-action="EditDriver">Dashboard</a>
+                                        </li>
+                                  
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="learnMoreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Learn More
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="learnMoreDropdown">
+                                        <li>  <a class="nav-link" asp-area="" asp-controller="Driver" asp-action="EditDriver">Dashboard</a></li>
+                                          </ul>
+                                        </li>
                             }
                             else
                             {

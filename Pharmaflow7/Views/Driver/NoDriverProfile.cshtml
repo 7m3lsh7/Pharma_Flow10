@@ -1,0 +1,9 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "No Driver Profile";
+}
+
+<h1>No Driver Profile Found</h1>
+<p>@Model.Message</p>
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Return to Home</a>
+<a asp-controller="Auth" asp-action="ContactSupport" class="btn btn-secondary">Contact Support</a>

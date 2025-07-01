@@ -18,14 +18,15 @@ namespace Pharmaflow7.Models
         public string? DistributorId { get; set; }
         public int? StoreId { get; set; }
         public int? DriverId { get; set; }
-
+        public decimal? DestinationLatitude { get; set; } // Added
+        public decimal? DestinationLongitude { get; set; } // Added
         public virtual Product Product { get; set; }
         public virtual ApplicationUser Distributor { get; set; }
         public virtual Driver? Driver { get; set; }
         public bool? IsAcceptedByDistributor { get; set; }
         public Store Store { get; set; }
         public int? Quantity { get; set; }
-
         public DateTime? CreatedAt { get; set; }
+        public List<VehicleLocation> VehicleLocations { get; set; } = new List<VehicleLocation>();
     }
 }

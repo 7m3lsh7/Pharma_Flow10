@@ -10,6 +10,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"] - Pharmaflow</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-4">
@@ -52,13 +69,15 @@
             <div class="mb-3">
                 <label asp-for="DriverId" class="form-label">Driver</label>
                 <select asp-for="DriverId" class="form-control" id="driverSelect">
-                    <option value="">Select a driver</option>
+                    <option value="">Not Assigned</option>
                 </select>
                 <span asp-validation-for="DriverId" class="text-danger"></span>
             </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
     </div>
+
+    <div class="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -69,93 +88,96 @@
         let isFetchingStores = false;
         let isFetchingDrivers = false;
 
+        function showMessage(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : "danger"}`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>`;
+            document.querySelector('.toast-container').appendChild(toast);
+            new bootstrap.Toast(toast).show();
+            setTimeout(() => toast.remove(), 5000);
+        }
+
         distributorSelect.addEventListener("change", function () {
             const distributorId = this.value;
             console.log("Selected DistributorId:", distributorId);
             storeSelect.innerHTML = '<option value="">Select a store</option>';
-            driverSelect.innerHTML = '<option value="">Select a driver</option>';
+            driverSelect.innerHTML = '<option value="">Not Assigned</option>';
 
             if (distributorId) {
                 // Fetch stores
-                const storesUrl = `${window.location.origin}/Company/GetStores?distributorId=${distributorId}`;
-                console.log("Fetching stores from:", storesUrl);
                 isFetchingStores = true;
-                fetch(storesUrl, {
+                fetch(`/Company/GetStores?distributorId=${distributorId}`, {
                     method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 })
-                .then(response => {
-                    console.log("Stores response status:", response.status);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(stores => {
-                    console.log("Stores received:", stores);
-                    stores.forEach(store => {
-                        const option = document.createElement("option");
-                        option.value = store.id; // Store id may be lowercase
-                        option.text = store.storeName || 'Unknown';
-                        storeSelect.appendChild(option);
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(stores => {
+                        console.log("Stores received:", stores);
+                        storeSelect.innerHTML = '<option value="">Select a store</option>';
+                        if (stores && Array.isArray(stores) && stores.length > 0) {
+                            stores.forEach(store => {
+                                const option = document.createElement("option");
+                                option.value = store.id || store.Id;
+                                option.text = store.storeName || 'Unknown';
+                                storeSelect.appendChild(option);
+                            });
+                        } else {
+                            storeSelect.innerHTML = '<option value="">No stores available</option>';
+                            showMessage("No stores available for this distributor.", "warning");
+                        }
+                        isFetchingStores = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching stores:', error);
+                        showMessage("Error loading stores.", "error");
+                        storeSelect.innerHTML = '<option value="">Error loading stores</option>';
+                        isFetchingStores = false;
                     });
-                    isFetchingStores = false;
-                })
-                .catch(error => {
-                    console.error('Error fetching stores:', error);
-                    storeSelect.innerHTML = '<option value="">Error loading stores</option>';
-                    isFetchingStores = false;
-                });
 
                 // Fetch drivers
-                const driversUrl = `${window.location.origin}/Company/GetDrivers?distributorId=${distributorId}`;
-                console.log("Fetching drivers from:", driversUrl);
                 isFetchingDrivers = true;
-                fetch(driversUrl, {
+                fetch(`/Company/GetDrivers?distributorId=${distributorId}`, {
                     method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 })
-                .then(response => {
-                    console.log("Drivers response status:", response.status);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(drivers => {
-                    console.log("Drivers received:", drivers);
-                    driverSelect.innerHTML = '<option value="">Select a driver</option>';
-                    if (drivers && Array.isArray(drivers) && drivers.length > 0) {
-                        drivers.forEach(driver => {
-                            // Handle both Id and id for case sensitivity
-                            const driverId = driver.Id !== undefined ? driver.Id : driver.id;
-                            if (driverId !== undefined && Number.isInteger(Number(driverId))) {
-                                const option = document.createElement("option");
-                                option.value = driverId;
-                                option.text = `${driver.fullName || 'Unknown'} - ${driver.licenseNumber || 'N/A'}`;
-                                driverSelect.appendChild(option);
-                            } else {
-                                console.warn("Invalid driver Id:", driver);
-                            }
-                        });
-                    } else {
-                        console.log("No drivers available or invalid response.");
-                        driverSelect.innerHTML = '<option value="">No drivers available</option>';
-                    }
-                    isFetchingDrivers = false;
-                })
-                .catch(error => {
-                    console.error('Error fetching drivers:', error);
-                    driverSelect.innerHTML = '<option value="">Error loading drivers</option>';
-                    isFetchingDrivers = false;
-                });
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(drivers => {
+                        console.log("Drivers received:", drivers);
+                        driverSelect.innerHTML = '<option value="">Not Assigned</option>';
+                        if (drivers && Array.isArray(drivers) && drivers.length > 0) {
+                            drivers.forEach(driver => {
+                                const driverId = driver.Id !== undefined ? driver.Id : driver.id;
+                                if (driverId && Number.isInteger(Number(driverId))) {
+                                    const option = document.createElement("option");
+                                    option.value = driverId;
+                                    option.text = `${driver.fullName || 'Unknown'} - ${driver.licenseNumber || 'N/A'}`;
+                                    driverSelect.appendChild(option);
+                                }
+                            });
+                        } else {
+                            showMessage("No drivers available for this distributor.", "warning");
+                        }
+                        isFetchingDrivers = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching drivers:', error);
+                        showMessage("Error loading drivers.", "error");
+                        driverSelect.innerHTML = '<option value="">Error loading drivers</option>';
+                        isFetchingDrivers = false;
+                    });
             } else {
                 storeSelect.innerHTML = '<option value="">Select a distributor first</option>';
-                driverSelect.innerHTML = '<option value="">Select a distributor first</option>';
+                driverSelect.innerHTML = '<option value="">Not Assigned</option>';
             }
         });
 
@@ -168,27 +190,26 @@
 
             if (!productId || !destination) {
                 e.preventDefault();
-                alert("Please select a product and enter a destination.");
+                showMessage("Please select a product and enter a destination.", "error");
                 return;
             }
 
             if (isFetchingStores || isFetchingDrivers) {
                 e.preventDefault();
-                alert("Please wait until data is loaded.");
+                showMessage("Please wait until data is loaded.", "error");
                 return;
             }
 
             if (distributorId && !storeId) {
                 e.preventDefault();
-                alert("Please select a store for the selected distributor.");
+                showMessage("Please select a store for the selected distributor.", "error");
                 return;
             }
 
-            // Validate DriverId
             if (driverId && (driverId === "undefined" || isNaN(Number(driverId)))) {
                 e.preventDefault();
-                alert("Please select a valid driver or leave it unselected.");
-                driverId = ""; // Reset to empty to map to null
+                showMessage("Please select a valid driver or leave it unselected.", "error");
+                driverId = "";
                 driverSelect.value = "";
             }
 

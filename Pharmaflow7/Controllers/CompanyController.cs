@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Pharmaflow7.Data;
+using Pharmaflow7.Hubs;
 using Pharmaflow7.Models;
 using System;
 using System.Globalization;
@@ -20,13 +22,16 @@ namespace Pharmaflow7.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<CompanyController> _logger;
+        private readonly IHubContext<TrackingHub> _hubContext;
 
-        public CompanyController(AppDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<CompanyController> logger) : base(userManager)
+        public CompanyController(AppDbContext context, UserManager<ApplicationUser> userManager,
+            IHubContext<TrackingHub> hubContext, SignInManager<ApplicationUser> signInManager, ILogger<CompanyController> logger) : base(userManager, logger)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _hubContext = hubContext;
         }
       
         public IActionResult Index()
@@ -272,6 +277,9 @@ namespace Pharmaflow7.Controllers
                 _logger.LogInformation("Received shipment data: ProductId={ProductId}, Destination={Destination}, DistributorId={DistributorId}, StoreId={StoreId}, DriverId={DriverId}",
                     model.ProductId, model.Destination, model.DistributorId, model.StoreId, model.DriverId);
 
+                // Remove DriverName from validation since it's not sent from the form
+                ModelState.Remove("DriverName");
+
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
@@ -288,8 +296,10 @@ namespace Pharmaflow7.Controllers
                 // Validate DriverId
                 if (model.DriverId.HasValue)
                 {
-                    var driverExists = await _context.Drivers.AnyAsync(d => d.Id == model.DriverId.Value);
-                    if (!driverExists)
+                    var driver = await _context.Drivers
+                        .Include(d => d.ApplicationUser)
+                        .FirstOrDefaultAsync(d => d.Id == model.DriverId.Value);
+                    if (driver == null)
                     {
                         ModelState.AddModelError("DriverId", "Selected driver does not exist.");
                         _logger.LogWarning("Invalid DriverId: {DriverId}", model.DriverId);
@@ -301,6 +311,8 @@ namespace Pharmaflow7.Controllers
                         TempData["Error"] = "Invalid driver selected.";
                         return View(model);
                     }
+                    // Optionally set DriverName for display purposes
+                    model.DriverName = driver.ApplicationUser?.FullName;
                 }
 
                 var shipment = new Shipment
@@ -311,13 +323,52 @@ namespace Pharmaflow7.Controllers
                     StoreId = model.StoreId.HasValue && model.StoreId != 0 ? model.StoreId : null,
                     DriverId = model.DriverId,
                     CompanyId = user.Id,
-                    Status = "Pending"
+                    Status = "Pending",
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _context.Shipments.Add(shipment);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Shipment {ShipmentId} created by company {CompanyId} with StoreId={StoreId} and DriverId={DriverId}",
                     shipment.Id, user.Id, shipment.StoreId, shipment.DriverId);
+
+                // Send notification to distributor if assigned
+                if (!string.IsNullOrEmpty(model.DistributorId))
+                {
+                    var notification = new Notification
+                    {
+                        UserId = model.DistributorId,
+                        ShipmentId = shipment.Id,
+                        Message = $"New shipment #{shipment.Id} assigned to you.",
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false
+                    };
+                    _context.Notifications.Add(notification);
+                    await _context.SaveChangesAsync();
+                    await _hubContext.Clients.User(model.DistributorId).SendAsync("ReceiveNotification", notification.Message, shipment.Id);
+                }
+
+                // Send notification to driver if assigned
+                if (model.DriverId.HasValue)
+                {
+                    var driver = await _context.Drivers
+                        .Include(d => d.ApplicationUser)
+                        .FirstOrDefaultAsync(d => d.Id == model.DriverId.Value);
+                    if (driver != null)
+                    {
+                        var driverNotification = new Notification
+                        {
+                            UserId = driver.ApplicationUserId,
+                            ShipmentId = shipment.Id,
+                            Message = $"New shipment #{shipment.Id} assigned to you.",
+                            CreatedAt = DateTime.UtcNow,
+                            IsRead = false
+                        };
+                        _context.Notifications.Add(driverNotification);
+                        await _context.SaveChangesAsync();
+                        await _hubContext.Clients.User(driver.ApplicationUserId).SendAsync("ReceiveNotification", driverNotification.Message, shipment.Id);
+                    }
+                }
 
                 return RedirectToAction("CompanyDashboard");
             }

@@ -58,9 +58,9 @@ namespace Pharmaflow7.Controllers
 
             switch (model.RoleType)
             {
-                case "consumer":
+                case "driver":
                     if (string.IsNullOrEmpty(model.FullName))
-                        ModelState.AddModelError("FullName", "Full Name is required for consumers.");
+                        ModelState.AddModelError("FullName", "Full Name is required for drivers.");
                     break;
                 case "company":
                     if (string.IsNullOrEmpty(model.CompanyName))
@@ -294,13 +294,13 @@ namespace Pharmaflow7.Controllers
             _logger.LogInformation("Redirecting to dashboard for role: {RoleType}", roleTypeLower);
             return RedirectToAction(roleTypeLower switch
             {
-                "consumer" => "ConsumerDashboard",
+                "driver" => "DriverShipments",
                 "company" => "CompanyDashboard",
                 "distributor" => "Dashboard",
                 _ => "Index"
             }, roleTypeLower switch
             {
-                "consumer" => "Consumer",
+                "driver" => "Driver",
                 "company" => "Company",
                 "distributor" => "Distributor",
                 _ => "Home"
