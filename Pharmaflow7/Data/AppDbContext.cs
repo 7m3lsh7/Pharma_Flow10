@@ -16,6 +16,7 @@ namespace Pharmaflow7.Data
         public DbSet<DashboardViewModel> dashboardViewModels { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Shipment> Shipments { get; set; }
+        public DbSet<Report> Reports { get; set; }
         public DbSet<Issue> Issues { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<Driver> Drivers { get; set; }

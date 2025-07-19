@@ -1,32 +1,36 @@
-﻿/* General Styling */
+﻿body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
 .dashboard-container {
     max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
-    background: #f5f8fb;
-    border-radius: 10px;
 }
 
-h1, h2 {
-    color: #005f99;
+h1 {
+    color: #333;
+    text-align: center;
     margin-bottom: 20px;
 }
 
-/* Cards */
 .overview {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .card {
-    background: white;
-    padding: 20px;
+    /* background: #fff; */
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
+    padding: 20px;
     text-align: center;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s;
 }
 
     .card:hover {
@@ -34,31 +38,29 @@ h1, h2 {
     }
 
     .card h2 {
-        font-size: 1.2rem;
+        color: #007bff;
+        font-size: 1.2em;
         margin-bottom: 10px;
     }
 
     .card p {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #00b4d8;
+        font-size: 1.5em;
+        color: #f9f9f9;
     }
 
-/* Chart */
 .chart-container {
-    background: white;
-    padding: 20px;
+    /* background: #fff; */
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
 }
 
-/* Table */
 .shipments-table {
-    background: white;
-    padding: 20px;
+    /* background: #fff; */
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
 table {
@@ -73,36 +75,28 @@ th, td {
 }
 
 th {
-    background: #005f99;
-    color: white;
+    background: #007bff;
+    color: #fff;
 }
 
-tr:hover {
-    background: #f1f8ff;
-}
-
-/* Actions */
 .actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+    text-align: center;
 }
 
     .actions button {
-        background: #005f99;
-        color: white;
-        padding: 10px 20px;
+        background: #007bff;
+        color: #fff;
         border: none;
+        padding: 10px 20px;
         border-radius: 5px;
         cursor: pointer;
-        transition: background 0.3s ease;
+        margin: 0 10px;
     }
 
         .actions button:hover {
-            background: #00b4d8;
+            background: #0056b3;
         }
 
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -110,34 +104,23 @@ tr:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
+    background: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
 }
 
 .modal-content {
-    background: white;
-    border-radius: 10px;
+    background: #00000059;
     padding: 20px;
-    max-width: 500px;
-    width: 90%;
-    position: relative;
-    animation: zoomIn 0.3s ease-out;
+    border-radius: 10px;
+    width: 400px;
 }
 
 .modal-close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 1.5rem;
+    float: right;
     cursor: pointer;
-    color: #005f99;
+    font-size: 1.5em;
 }
-
-    .modal-close:hover {
-        color: #00b4d8;
-    }
 
 .form-group {
     margin-bottom: 15px;
@@ -146,10 +129,9 @@ tr:hover {
     .form-group label {
         display: block;
         margin-bottom: 5px;
-        color: #005f99;
     }
 
-    .form-group input {
+    .form-group input, .form-group select {
         width: 100%;
         padding: 8px;
         border: 1px solid #ddd;
@@ -157,20 +139,19 @@ tr:hover {
     }
 
 .btn {
-    background: #005f99;
-    color: white;
-    padding: 10px;
+    background: #007bff;
+    color: #fff;
     border: none;
-    border-radius: 5px;
+    padding: 10px;
     width: 100%;
+    border-radius: 5px;
     cursor: pointer;
 }
 
     .btn:hover {
-        background: #00b4d8;
+        background: #0056b3;
     }
 
-/* Loading Overlay */
 .loading-overlay {
     display: none;
     position: fixed;
@@ -179,31 +160,17 @@ tr:hover {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 2000;
     align-items: center;
     justify-content: center;
 }
 
 .spinner {
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #00b4d8;
+    border-top: 4px solid #007bff;
     border-radius: 50%;
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
-}
-
-/* Animations */
-@keyframes zoomIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
 }
 
 @keyframes spin {

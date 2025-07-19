@@ -9,105 +9,859 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"] - Pharmaflow</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        /* Enhanced Professional Create Shipment Page Styles */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary-color: #059669;
+            --secondary-dark: #047857;
+            --accent-color: #f59e0b;
+            --accent-dark: #d97706;
+            --danger-color: #dc2626;
+            --warning-color: #f59e0b;
+            --success-color: #059669;
+            --info-color: #0891b2;
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-dark) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-dark) 100%);
+            --gradient-danger: linear-gradient(135deg, var(--danger-color) 0%, #b91c1c 100%);
+            --gradient-info: linear-gradient(135deg, var(--info-color) 0%, #0e7490 100%);
+            --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --border-radius-sm: 6px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 16px;
+            --border-radius-2xl: 20px;
+            --transition-fast: 0.15s ease-in-out;
+            --transition-normal: 0.3s ease-in-out;
+            --transition-slow: 0.5s ease-in-out;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+     
+            color: var(--neutral-700);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+            .header-section::before {
+                content: '';
+                position: absolute;
+                top: -20px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 150px;
+                height: 4px;
+                background: var(--gradient-primary);
+                border-radius: 2px;
+                opacity: 0.8;
+            }
+
+        /* Main Title */
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+       
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+            h1 .icon {
+                color: var(--primary-color);
+                font-size: 2.5rem;
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+            }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #fdfeff;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            padding: 3rem;
+            border-radius: var(--border-radius-2xl);
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid var(--neutral-200);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+            .form-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: var(--gradient-primary);
+            }
+
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+            .progress-indicator::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: var(--neutral-200);
+                z-index: 1;
+            }
+
+        .progress-step {
+            background: white;
+            border: 3px solid var(--neutral-300);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--neutral-500);
+            position: relative;
+            z-index: 2;
+            transition: all var(--transition-normal);
+        }
+
+            .progress-step.active {
+                border-color: var(--primary-color);
+                background: var(--primary-color);
+                color: white;
+                box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+            }
+
+            .progress-step.completed {
+                border-color: var(--secondary-color);
+                background: var(--secondary-color);
+                color: white;
+            }
+
+                .progress-step.completed::before {
+                    content: '✓';
+                }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+                color: var(--neutral-800);
+                font-size: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+                .form-group label i {
+                    color: var(--primary-color);
+                    font-size: 1.1rem;
+                    width: 20px;
+                    text-align: center;
+                }
+
+        /* Form Controls */
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--border-radius-lg);
+            font-size: 1rem;
+            color: var(--neutral-800);
+            transition: all var(--transition-normal);
+            background-color: white;
+            font-family: inherit;
+            position: relative;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+                transform: translateY(-2px);
+            }
+
+            .form-control:hover {
+                border-color: var(--primary-light);
+                box-shadow: var(--shadow-md);
+            }
+
+        /* Select Styling */
+        select.form-control {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
+        }
+
+            select.form-control:focus {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            }
+
+        /* Loading States */
+        .form-control.loading {
+            background-image: url("data:image/svg+xml,%3csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='%236b7280' fill-rule='evenodd'%3e%3ccircle cx='10' cy='10' r='1'%3e%3canimate attributeName='r' begin='0s' dur='1.8s' values='1; 4; 1; 1' calcMode='linear' repeatCount='indefinite' /%3e%3canimate attributeName='fill-opacity' begin='0s' dur='1.8s' values='1; 0; 1; 1' calcMode='linear' repeatCount='indefinite' /%3e%3c/circle%3e%3c/g%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.25rem 3rem;
+            border: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-lg);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+            .btn-submit::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left var(--transition-slow);
+            }
+
+            .btn-submit:hover::before {
+                left: 100%;
+            }
+
+            .btn-submit:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-2xl);
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            }
+
+            .btn-submit:active {
+                transform: translateY(-1px);
+            }
+
+            .btn-submit:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .btn-submit .icon {
+                font-size: 1.2rem;
+            }
+
+        /* Validation Messages */
+        .text-danger {
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+            .text-danger::before {
+                content: '⚠️';
+                font-size: 0.9rem;
+            }
+
+        /* Alert Styles */
         .alert {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            border: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
         }
 
+        .alert-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .alert-success {
+            background: var(--gradient-secondary);
+            color: white;
+        }
+
+        .alert-warning {
+            background: var(--gradient-accent);
+            color: white;
+        }
+
+        .alert::before {
+            content: '🚨';
+            font-size: 1.2rem;
+        }
+
+        .alert-success::before {
+            content: '✅';
+        }
+
+        .alert-warning::before {
+            content: '⚠️';
+        }
+
+        /* Toast Styles */
         .toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1050;
         }
+
+        .toast {
+            background: white;
+            border: none;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            position: relative;
+            min-width: 300px;
+        }
+
+            .toast::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--gradient-primary);
+            }
+
+            .toast.text-bg-success::before {
+                background: var(--gradient-secondary);
+            }
+
+            .toast.text-bg-danger::before {
+                background: var(--gradient-danger);
+            }
+
+        .toast-body {
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-800);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .toast-body::before {
+                content: 'ℹ️';
+                font-size: 1.1rem;
+            }
+
+        .toast.text-bg-success .toast-body::before {
+            content: '✅';
+        }
+
+        .toast.text-bg-danger .toast-body::before {
+            content: '❌';
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+        }
+
+        .spinner {
+            border: 8px solid var(--neutral-200);
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animations */
+        keyframes slideInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        keyframes slideInRight {
+            from
+
+        {
+            right: -400px;
+            opacity: 0;
+        }
+
+        to {
+            right: 20px;
+            opacity: 1;
+        }
+
+        }
+
+        keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        /* Responsive Design */
+        media (max-width: 768px) {
+            .container
+
+        {
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        .form-container {
+            padding: 2rem;
+        }
+
+        .form-control {
+            padding: 0.9rem 1rem;
+        }
+
+        .btn-submit {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        .alert {
+            right: 10px;
+            left: 10px;
+            max-width: none;
+        }
+
+        .toast-container {
+            right: 10px;
+            left: 10px;
+        }
+
+        }
+
+        media (max-width: 480px) {
+            h1
+
+        {
+            font-size: 2rem;
+        }
+
+        h1 .icon {
+            font-size: 1.8rem;
+        }
+
+        .form-container {
+            padding: 1.5rem;
+        }
+
+        .form-control {
+            padding: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-submit {
+            padding: 0.9rem 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .progress-step {
+            width: 35px;
+            height: 35px;
+            font-size: 0.8rem;
+        }
+
+        }
+
+        /* Focus Visible for Accessibility */
+        .form-control:focus-visible,
+        .btn-submit:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* High Contrast Mode Support */
+        media (prefers-contrast: high) {
+            : root
+
+        {
+            --neutral-300: #000000;
+            --neutral-700: #000000;
+            --primary-color: #0000ff;
+        }
+
+        }
+
+        /* Reduced Motion Support */
+        media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after
+
+        {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="mb-4">Create New Shipment</h1>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <h1>
+                <i class="fas fa-shipping-fast icon"></i>
+                Create New Shipment
+            </h1>
+            <p class="subtitle">Streamline your pharmaceutical distribution process with our advanced shipment management system</p>
+        </div>
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                @TempData["Error"]
+        <!-- Form Container -->
+        <div class="form-container">
+            <!-- Progress Indicator -->
+            <div class="progress-indicator">
+                <div class="progress-step active">1</div>
+                <div class="progress-step">2</div>
+                <div class="progress-step">3</div>
+                <div class="progress-step">4</div>
+                <div class="progress-step">5</div>
             </div>
-        }
 
-        <form asp-action="CreateShipment" method="post" id="createShipmentForm">
-            <div class="mb-3">
-                <label asp-for="ProductId" class="form-label" style="color: white;">Product</label>
-                <select asp-for="ProductId" class="form-control" id="ProductId" asp-items="@(new SelectList(Model.Products, "Id", "Name"))">
-                    <option value="">Select a product</option>
-                </select>
-                <span asp-validation-for="ProductId" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Destination" class="form-label" style="color: white;">Destination</label>
-                <input asp-for="Destination" class="form-control" id="Destination" />
-                <span asp-validation-for="Destination" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="DistributorId" class="form-label" style="color: white;">Distributor</label>
-                <select asp-for="DistributorId" class="form-control" id="distributorSelect" asp-items="@(new SelectList(Model.Distributors, "Id", "UserName"))">
-                    <option value="">Not Assigned</option>
-                </select>
-                <span asp-validation-for="DistributorId" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="StoreId" class="form-label">Store</label>
-                <select asp-for="StoreId" class="form-control" id="storeSelect">
-                    <option value="">Select a distributor first</option>
-                </select>
-                <span asp-validation-for="StoreId" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="DriverId" class="form-label">Driver</label>
-                <select asp-for="DriverId" class="form-control" id="driverSelect">
-                    <option value="">Not Assigned</option>
-                </select>
-                <span asp-validation-for="DriverId" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <form asp-action="CreateShipment" method="post" id="createShipmentForm">
+                <div class="form-group">
+                    <label asp-for="ProductId">
+                        <i class="fas fa-pills"></i>
+                        Product Selection
+                    </label>
+                    <select asp-for="ProductId" class="form-control" id="ProductId" asp-items="@(new SelectList(Model.Products, "Id", "Name"))">
+                        <option value="">Select a pharmaceutical product</option>
+                    </select>
+                
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Destination">
+                        <i class="fas fa-map-marker-alt"></i>
+                       Description 
+                    </label>
+                    <input asp-for="Destination" class="form-control" id="Destination" placeholder="Enter complete delivery address" />
+                 
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DistributorId">
+                        <i class="fas fa-building"></i>
+                        Distributor Assignment
+                    </label>
+                    <select asp-for="DistributorId" class="form-control" id="distributorSelect" asp-items="@(new SelectList(Model.Distributors, "Id", "UserName"))">
+                        <option value="">Not Assigned (Optional)</option>
+                    </select>
+                   
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="StoreId">
+                        <i class="fas fa-store"></i>
+                        Store Selection
+                    </label>
+                    <select asp-for="StoreId" class="form-control" id="storeSelect">
+                        <option value="">Select a distributor first</option>
+                    </select>
+                 
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DriverId">
+                        <i class="fas fa-user-tie"></i>
+                        Driver Assignment
+                    </label>
+                    <select asp-for="DriverId" class="form-control" id="driverSelect">
+                        <option value="">Not Assigned (Optional)</option>
+                    </select>
+            
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane icon"></i>
+                    Create Shipment
+                </button>
+            </form>
+        </div>
     </div>
 
+    <!-- Toast Container -->
     <div class="toast-container"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
     <script>
+        // Enhanced Create Shipment JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            setupProgressIndicator();
+        });
+
         const distributorSelect = document.getElementById("distributorSelect");
         const storeSelect = document.getElementById("storeSelect");
         const driverSelect = document.getElementById("driverSelect");
         const form = document.getElementById("createShipmentForm");
+        const progressSteps = document.querySelectorAll('.progress-step');
         let isFetchingStores = false;
         let isFetchingDrivers = false;
 
+        function initializeForm() {
+            // Add loading states to selects when fetching data
+            const selects = [distributorSelect, storeSelect, driverSelect];
+            selects.forEach(select => {
+                select.addEventListener('focus', function() {
+                    this.classList.add('focused');
+                });
+                select.addEventListener('blur', function() {
+                    this.classList.remove('focused');
+                });
+            });
+        }
+
+        function setupProgressIndicator() {
+            const formInputs = document.querySelectorAll('.form-control');
+
+            formInputs.forEach((input, index) => {
+                input.addEventListener('change', function() {
+                    updateProgressIndicator();
+                });
+                input.addEventListener('input', function() {
+                    updateProgressIndicator();
+                });
+            });
+        }
+
+        function updateProgressIndicator() {
+            const productId = document.getElementById("ProductId").value;
+            const destination = document.getElementById("Destination").value;
+            const distributorId = distributorSelect.value;
+            const storeId = storeSelect.value;
+            const driverId = driverSelect.value;
+
+            // Reset all steps
+            progressSteps.forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+
+            let completedSteps = 0;
+
+            if (productId) {
+                progressSteps[0].classList.add('completed');
+                completedSteps++;
+            }
+
+            if (destination) {
+                progressSteps[1].classList.add('completed');
+                completedSteps++;
+            }
+
+            if (distributorId) {
+                progressSteps[2].classList.add('completed');
+                completedSteps++;
+            }
+
+            if (storeId) {
+                progressSteps[3].classList.add('completed');
+                completedSteps++;
+            }
+
+            if (driverId) {
+                progressSteps[4].classList.add('completed');
+                completedSteps++;
+            }
+
+            // Set active step
+            if (completedSteps < progressSteps.length) {
+                progressSteps[completedSteps].classList.add('active');
+            }
+        }
+
         function showMessage(message, type) {
             const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : "danger"}`;
+            toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : type === "warning" ? "warning" : "danger"}`;
             toast.innerHTML = `
                 <div class="d-flex">
                     <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
                 </div>`;
             document.querySelector('.toast-container').appendChild(toast);
-            new bootstrap.Toast(toast).show();
-            setTimeout(() => toast.remove(), 5000);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
         }
 
         distributorSelect.addEventListener("change", function () {
             const distributorId = this.value;
             console.log("Selected DistributorId:", distributorId);
+
+            // Reset dependent selects
             storeSelect.innerHTML = '<option value="">Select a store</option>';
             driverSelect.innerHTML = '<option value="">Not Assigned</option>';
 
+            // Update progress
+            updateProgressIndicator();
+
             if (distributorId) {
+                // Show loading state
+                storeSelect.classList.add('loading');
+                driverSelect.classList.add('loading');
+
                 // Fetch stores
                 isFetchingStores = true;
                 fetch(`/Company/GetStores?distributorId=${distributorId}`, {
@@ -133,12 +887,14 @@
                             showMessage("No stores available for this distributor.", "warning");
                         }
                         isFetchingStores = false;
+                        storeSelect.classList.remove('loading');
                     })
                     .catch(error => {
                         console.error('Error fetching stores:', error);
-                        showMessage("Error loading stores.", "error");
+                        showMessage("Error loading stores. Please try again.", "error");
                         storeSelect.innerHTML = '<option value="">Error loading stores</option>';
                         isFetchingStores = false;
+                        storeSelect.classList.remove('loading');
                     });
 
                 // Fetch drivers
@@ -168,18 +924,24 @@
                             showMessage("No drivers available for this distributor.", "warning");
                         }
                         isFetchingDrivers = false;
+                        driverSelect.classList.remove('loading');
                     })
                     .catch(error => {
                         console.error('Error fetching drivers:', error);
-                        showMessage("Error loading drivers.", "error");
+                        showMessage("Error loading drivers. Please try again.", "error");
                         driverSelect.innerHTML = '<option value="">Error loading drivers</option>';
                         isFetchingDrivers = false;
+                        driverSelect.classList.remove('loading');
                     });
             } else {
                 storeSelect.innerHTML = '<option value="">Select a distributor first</option>';
                 driverSelect.innerHTML = '<option value="">Not Assigned</option>';
             }
         });
+
+        // Update progress when store or driver changes
+        storeSelect.addEventListener('change', updateProgressIndicator);
+        driverSelect.addEventListener('change', updateProgressIndicator);
 
         form.addEventListener("submit", function (e) {
             const productId = document.getElementById("ProductId").value;
@@ -188,30 +950,37 @@
             const storeId = storeSelect.value;
             let driverId = driverSelect.value;
 
+            // Basic validation
             if (!productId || !destination) {
                 e.preventDefault();
-                showMessage("Please select a product and enter a destination.", "error");
+                showMessage("Please select a product and enter a destination address.", "error");
                 return;
             }
 
+            // Check if still loading data
             if (isFetchingStores || isFetchingDrivers) {
                 e.preventDefault();
-                showMessage("Please wait until data is loaded.", "error");
+                showMessage("Please wait until all data is loaded before submitting.", "warning");
                 return;
             }
 
+            // Validate store selection if distributor is selected
             if (distributorId && !storeId) {
                 e.preventDefault();
                 showMessage("Please select a store for the selected distributor.", "error");
                 return;
             }
 
+            // Validate driver ID
             if (driverId && (driverId === "undefined" || isNaN(Number(driverId)))) {
                 e.preventDefault();
                 showMessage("Please select a valid driver or leave it unselected.", "error");
                 driverId = "";
                 driverSelect.value = "";
             }
+
+            // Show loading overlay
+            showLoading();
 
             console.log("Form submitted with data:", {
                 ProductId: productId,
@@ -220,7 +989,17 @@
                 StoreId: storeId || "Not Assigned",
                 DriverId: driverId || "Not Assigned"
             });
+
+            // Show success message
+            setTimeout(() => {
+                hideLoading();
+                showMessage("Shipment is being created. Please wait...", "success");
+            }, 1000);
         });
+
+        // Initialize progress indicator on page load
+        updateProgressIndicator();
     </script>
 </body>
 </html>
+

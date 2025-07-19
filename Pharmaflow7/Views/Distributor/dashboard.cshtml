@@ -10,10 +10,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.js"></script>
 
-<!-- Main Content -->
 <div class="dashboard-container">
-    <h1><i class="fas fa-eye"></i> Overview</h1>
+    <h1><i class="fas fa-tachometer-alt"></i> Distributor Dashboard</h1>
     <div class="overview">
+        <div class="card" id="drivers">
+            <h2><i class="fas fa-users"></i> Total Drivers</h2>
+            <p id="drivers-value">Loading...</p>
+        </div>
         <div class="card" id="stock">
             <h2><i class="fas fa-boxes"></i> Current Inventory</h2>
             <p id="stock-value">Loading...</p>
@@ -28,54 +31,50 @@
         </div>
     </div>
 
-    <!-- Chart Section -->
     <div class="chart-container">
-        <h2><i class="fas fa-chart-line"></i> Shipments by Status</h2>
-        <canvas id="inventoryChart"></canvas>
+        <h2><i class="fas fa-chart-bar"></i> Shipments by Status</h2>
+        <canvas id="shipmentsChart"></canvas>
     </div>
 
-    <!-- Shipments Table -->
     <div class="shipments-table">
         <h2><i class="fas fa-table"></i> Shipment Details</h2>
         <table>
             <thead>
                 <tr>
                     <th>Shipment ID</th>
-                    <th>Type</th>
+                    <th>Product</th>
                     <th>Quantity</th>
                     <th>Date</th>
                     <th>Status</th>
+                 
                 </tr>
             </thead>
             <tbody id="shipments-body">
                 <tr>
-                    <td colspan="5">Loading shipments...</td>
+                    <td colspan="6">Loading shipments...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Actions -->
     <div class="actions">
         <button id="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh Data</button>
         <button id="add-shipment-btn"><i class="fas fa-plus"></i> Add New Shipment</button>
     </div>
 </div>
 
-<!-- Add Shipment Modal -->
 <div class="modal" id="add-shipment-modal">
     <div class="modal-content">
         <span class="modal-close">&times;</span>
         <h2>Add New Shipment</h2>
         <form id="add-shipment-form">
             <div class="form-group">
-                <label for="product-name">Product Name</label>
-                <input type="text" id="product-name" name="productName" required>
+                <label for="product-id">Product</label>
+                <select id="product-id" name="productId" required>
+                    <option value="">Select Product</option>
+                </select>
             </div>
-            <div class="form-group">
-                <label for="quantity">Quantity</label>
-                <input type="number" id="quantity" name="quantity" min="1" required>
-            </div>
+         
             <div class="form-group">
                 <label for="destination">Destination</label>
                 <input type="text" id="destination" name="destination" required>
@@ -85,7 +84,6 @@
     </div>
 </div>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loading">
     <div class="spinner"></div>
 </div>

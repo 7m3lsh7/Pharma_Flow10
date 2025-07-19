@@ -1,198 +1,163 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
-    const loadingOverlay = document.getElementById('loading');
-    const refreshBtn = document.getElementById('refresh-btn');
-    const addShipmentBtn = document.getElementById('add-shipment-btn');
-    const addShipmentModal = document.getElementById('add-shipment-modal');
-    const modalClose = document.querySelector('.modal-close');
-    const addShipmentForm = document.getElementById('add-shipment-form');
-    const stockValue = document.getElementById('stock-value');
-    const incomingValue = document.getElementById('incoming-value');
-    const outgoingValue = document.getElementById('outgoing-value');
-    const shipmentsBody = document.getElementById('shipments-body');
+﻿document.addEventListener("DOMContentLoaded", () => {
+    const loading = document.getElementById("loading");
+    const refreshBtn = document.getElementById("refresh-btn");
+    const addShipmentBtn = document.getElementById("add-shipment-btn");
+    const modal = document.getElementById("add-shipment-modal");
+    const closeModal = document.querySelector(".modal-close");
+    const addShipmentForm = document.getElementById("add-shipment-form");
 
-    let inventoryChart;
-
-    // جلب بيانات الـ Dashboard
-    async function fetchDashboardData() {
-        try {
-            loadingOverlay.style.display = 'flex';
-            const response = await fetch('/Distributor/GetDashboardData', {
-                headers: {
-                    'Accept': 'application/json'
-                }
+    // Load dashboard data
+    function loadDashboardData() {
+        loading.style.display = "flex";
+        fetch("/Distributor/GetDashboardData")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("drivers-value").textContent = data.driversCount || 0;
+                document.getElementById("stock-value").textContent = data.inventoryCount || 0;
+                document.getElementById("incoming-value").textContent = data.incomingShipments || 0;
+                document.getElementById("outgoing-value").textContent = data.outgoingShipments || 0;
+                loading.style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error loading dashboard data:", error);
+                loading.style.display = "none";
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            stockValue.textContent = data.inventoryCount ?? '0';
-            incomingValue.textContent = data.incomingShipments ?? '0';
-            outgoingValue.textContent = data.outgoingShipments ?? '0';
-        } catch (error) {
-            console.error('Error fetching dashboard data:', error);
-            stockValue.textContent = 'Error';
-            incomingValue.textContent = 'Error';
-            outgoingValue.textContent = 'Error';
-        } finally {
-            loadingOverlay.style.display = 'none';
-        }
     }
 
-    // جلب بيانات الـ Shipments
-    async function fetchShipments() {
-        try {
-            loadingOverlay.style.display = 'flex';
-            const response = await fetch('/Distributor/GetShipments', {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const shipments = await response.json();
-            shipmentsBody.innerHTML = '';
-            if (shipments.length === 0) {
-                shipmentsBody.innerHTML = '<tr><td colspan="5">No shipments found.</td></tr>';
-            } else {
-                shipments.forEach(s => {
-                    const row = document.createElement('tr');
+    // Load shipments
+    function loadShipments() {
+        fetch("/Distributor/GetShipments")
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById("shipments-body");
+                tbody.innerHTML = "";
+                data.forEach(shipment => {
+                    const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>${s.id}</td>
-                        <td>${s.type}</td>
-                        <td>${s.quantity}</td>
-                        <td>${s.date}</td>
-                        <td>${s.status}</td>
+                        <td>${shipment.id}</td>
+                        <td>${shipment.type}</td>
+                        <td>${shipment.quantity}</td>
+                        <td>${shipment.date}</td>
+                        <td>${shipment.status}</td>
+                 
                     `;
-                    shipmentsBody.appendChild(row);
+                    tbody.appendChild(row);
                 });
-            }
-            updateChart(shipments);
-        } catch (error) {
-            console.error('Error fetching shipments:', error);
-            shipmentsBody.innerHTML = '<tr><td colspan="5">Error loading shipments.</td></tr>';
-        } finally {
-            loadingOverlay.style.display = 'none';
-        }
-    }
 
-    // تحديث الـ Chart
-    function updateChart(shipments) {
-        const ctx = document.getElementById('inventoryChart').getContext('2d');
-        const statusCounts = {
-            'Pending': 0,
-            'In Transit': 0,
-            'Delivered': 0,
-            'Rejected': 0
-        };
-
-        shipments.forEach(s => {
-            if (statusCounts[s.status]) {
-                statusCounts[s.status]++;
-            }
-        });
-
-        if (inventoryChart) {
-            inventoryChart.destroy();
-        }
-
-        inventoryChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(statusCounts),
-                datasets: [{
-                    label: 'Shipments by Status',
-                    data: Object.values(statusCounts),
-                    backgroundColor: ['#005f99', '#00b4d8', '#4caf50', '#f44336'],
-                    borderColor: ['#003d66', '#0088a8', '#388e3c', '#d32f2f'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Shipments'
-                        }
+                // Update chart
+                const ctx = document.getElementById("shipmentsChart").getContext("2d");
+                const statusCounts = data.reduce((acc, s) => {
+                    acc[s.status] = (acc[s.status] || 0) + 1;
+                    return acc;
+                }, {});
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: Object.keys(statusCounts),
+                        datasets: [{
+                            label: "Shipments by Status",
+                            data: Object.values(statusCounts),
+                            backgroundColor: ["#007bff", "#28a745", "#dc3545", "#ffc107"],
+                        }]
                     },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Status'
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
+                });
+            })
+            .catch(error => console.error("Error loading shipments:", error));
     }
 
-    // فتح/إغلاق الـ Modal
-    addShipmentBtn.addEventListener('click', () => {
-        addShipmentModal.style.display = 'flex';
+    // Modal handling
+    addShipmentBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+        // Load products dynamically
+        fetch("/Distributor/GetProducts")
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById("product-id");
+                select.innerHTML = '<option value="">Select Product</option>';
+                data.forEach(product => {
+                    const option = document.createElement("option");
+                    option.value = product.id;
+                    option.textContent = product.name;
+                    select.appendChild(option);
+                });
+            });
     });
 
-    modalClose.addEventListener('click', () => {
-        addShipmentModal.style.display = 'none';
+    closeModal.addEventListener("click", () => {
+        modal.style.display = "none";
     });
 
-    addShipmentModal.addEventListener('click', (e) => {
-        if (e.target === addShipmentModal) {
-            addShipmentModal.style.display = 'none';
-        }
-    });
-
-    // معالجة Form إضافة Shipment
-    addShipmentForm.addEventListener('submit', async (e) => {
+    addShipmentForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const formData = new FormData(addShipmentForm);
-        const shipmentData = {
-            productName: formData.get('productName'),
-            quantity: parseInt(formData.get('quantity')),
-            destination: formData.get('destination')
+        const data = {
+            productId: formData.get("productId"),
+          
+            destination: formData.get("destination")
         };
 
-        try {
-            loadingOverlay.style.display = 'flex';
-            // TODO: استبدلي الـ endpoint ده لو عندك action فعلية لإضافة shipment
-            const response = await fetch('/Distributor/CreateShipment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(shipmentData)
-            });
-            const result = await response.json();
-            if (result.success) {
-                alert(result.message || 'Shipment created successfully!');
-                addShipmentModal.style.display = 'none';
-                fetchShipments();
-                fetchDashboardData();
-            } else {
-                alert(result.message || 'Failed to create shipment.');
+        fetch("/Distributor/CreateShipment", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": document.querySelector("input[name='__RequestVerificationToken']").value
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    modal.style.display = "none";
+                    loadShipments();
+                    loadDashboardData();
+                } else {
+                    alert(result.message);
+                }
+            })
+            .catch(error => console.error("Error creating shipment:", error));
+    });
+
+    // Accept/Reject shipment
+    window.acceptShipment = (id) => {
+        fetch(`/Distributor/AcceptShipment?id=${id}`, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": document.querySelector("input[name='__RequestVerificationToken']").value
             }
-        } catch (error) {
-            console.error('Error creating shipment:', error);
-            alert('An error occurred while creating the shipment.');
-        } finally {
-            loadingOverlay.style.display = 'none';
-        }
+        })
+            .then(response => response.json())
+            .then(result => {
+                alert(result.message);
+                loadShipments();
+            });
+    };
+
+    window.rejectShipment = (id) => {
+        fetch(`/Distributor/RejectShipment?id=${id}`, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": document.querySelector("input[name='__RequestVerificationToken']").value
+            }
+        })
+            .then(response => response.json())
+            .then(result => {
+                alert(result.message);
+                loadShipments();
+            });
+    };
+
+    refreshBtn.addEventListener("click", () => {
+        loadDashboardData();
+        loadShipments();
     });
 
-    // Refresh Data
-    refreshBtn.addEventListener('click', () => {
-        fetchDashboardData();
-        fetchShipments();
-    });
-
-    // جلب البيانات عند تحميل الصفحة
-    fetchDashboardData();
-    fetchShipments();
+    // Initial load
+    loadDashboardData();
+    loadShipments();
 });

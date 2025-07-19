@@ -1,30 +1,1121 @@
-﻿
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Professional Reports Dashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports Page</title>
-    <link rel="stylesheet" href="~/css/report.css">
+    <title>@ViewData["Title"] - Pharmaflow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.js"></script>
+    <style>
+        /* Enhanced Professional Reports Page Styles */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary-color: #059669;
+            --secondary-dark: #047857;
+            --accent-color: #f59e0b;
+            --accent-dark: #d97706;
+            --danger-color: #dc2626;
+            --warning-color: #f59e0b;
+            --success-color: #059669;
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-dark) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-dark) 100%);
+            --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --border-radius-sm: 6px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 16px;
+            --border-radius-2xl: 20px;
+            --transition-fast: 0.15s ease-in-out;
+            --transition-normal: 0.3s ease-in-out;
+            --transition-slow: 0.5s ease-in-out;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+          
+            color: var(--neutral-700);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+            .header-section::before {
+                content: '';
+                position: absolute;
+                top: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 200px;
+                height: 6px;
+                background: var(--gradient-primary);
+                border-radius: 3px;
+                opacity: 0.8;
+            }
+
+        /* Main Title */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+   
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+            h1 i {
+                background: var(--gradient-primary);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-right: 1rem;
+                font-size: 3rem;
+            }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #fdfeff;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Section Headers */
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neutral-800);
+            margin: 3rem 0 2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+            h2::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 60px;
+                height: 3px;
+                background: var(--gradient-primary);
+                border-radius: 2px;
+            }
+
+            h2 i {
+                color: var(--primary-color);
+                font-size: 1.75rem;
+            }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: #00000017;
+            padding: 2.5rem;
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-normal);
+            border: 1px solid var(--neutral-200);
+        }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: var(--gradient-primary);
+            }
+
+            .stat-card:hover {
+                transform: translateY(-8px);
+                box-shadow: var(--shadow-2xl);
+            }
+
+            .stat-card.warning::before {
+                background: var(--gradient-accent);
+            }
+
+            .stat-card.success::before {
+                background: var(--gradient-secondary);
+            }
+
+            .stat-card.danger::before {
+                background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+            }
+
+        .stat-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card.warning .stat-icon {
+            color: var(--accent-color);
+        }
+
+        .stat-card.success .stat-icon {
+            color: var(--secondary-color);
+        }
+
+        .stat-card.danger .stat-icon {
+            color: var(--danger-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--neutral-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #fdfeff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            padding: 3rem;
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 3rem;
+            border: 1px solid var(--neutral-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .chart-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: var(--gradient-secondary);
+            }
+
+            .chart-container h2 {
+                margin-top: 0;
+                margin-bottom: 2rem;
+            }
+
+        #monthlyChart {
+            max-height: 400px;
+            width: 100%;
+        }
+
+        /* Form Styling */
+        #reportForm {
+            background: white;
+            padding: 3rem;
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 3rem;
+            border: 1px solid var(--neutral-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+            #reportForm::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: var(--gradient-accent);
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+                color: var(--neutral-800);
+                font-size: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+                .form-group label i {
+                    color: var(--primary-color);
+                    font-size: 1.1rem;
+                }
+
+            .form-group input[type="text"],
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 1rem 1.25rem;
+                border: 2px solid var(--neutral-300);
+                border-radius: var(--border-radius-lg);
+                font-size: 1rem;
+                color: var(--neutral-700);
+                transition: all var(--transition-normal);
+                background-color: var(--neutral-50);
+                font-family: inherit;
+            }
+
+                .form-group input[type="text"]:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+                    background-color: white;
+                }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 120px;
+                font-family: inherit;
+            }
+
+        /* Enhanced Button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-md);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+            min-width: 180px;
+        }
+
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left var(--transition-slow);
+            }
+
+            .btn:hover::before {
+                left: 100%;
+            }
+
+            .btn:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-xl);
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            }
+
+            .btn:active {
+                transform: translateY(-1px);
+            }
+
+            .btn i {
+                font-size: 1.2rem;
+            }
+
+        /* Reports Table */
+        .reports-table {
+            background: white;
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid var(--neutral-200);
+            position: relative;
+        }
+
+            .reports-table::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: var(--gradient-secondary);
+            }
+
+        .table-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+            .search-box input {
+                width: 100%;
+                padding: 0.75rem 1rem 0.75rem 3rem;
+                border: 2px solid var(--neutral-300);
+                border-radius: var(--border-radius-lg);
+                font-size: 1rem;
+                transition: all var(--transition-normal);
+                background-color: white;
+            }
+
+                .search-box input:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                }
+
+            .search-box i {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--neutral-500);
+                font-size: 1.1rem;
+            }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--border-radius-lg);
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            min-width: 150px;
+        }
+
+            .filter-select:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 2rem;
+        }
+
+        .reports-table table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .reports-table th,
+        .reports-table td {
+            padding: 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .reports-table th {
+            background: linear-gradient(135deg, var(--neutral-800) 0%, var(--neutral-700) 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+            .reports-table th:first-child {
+                border-top-left-radius: var(--border-radius-lg);
+            }
+
+            .reports-table th:last-child {
+                border-top-right-radius: var(--border-radius-lg);
+            }
+
+        .reports-table tbody tr {
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+            .reports-table tbody tr:nth-child(even) {
+                background-color: var(--neutral-50);
+            }
+
+            .reports-table tbody tr:hover {
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-md);
+            }
+
+                .reports-table tbody tr:hover::after {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 4px;
+                    background: var(--gradient-primary);
+                }
+
+        .reports-table td {
+            font-size: 0.95rem;
+            color: var(--neutral-700);
+            font-weight: 500;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-pending {
+            background: rgba(107, 114, 128, 0.1);
+            color: var(--neutral-700);
+            border: 2px solid rgba(107, 114, 128, 0.2);
+        }
+
+        .status-resolved {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success-color);
+            border: 2px solid rgba(5, 150, 105, 0.2);
+        }
+
+        .status-urgent {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger-color);
+            border: 2px solid rgba(220, 38, 38, 0.2);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--neutral-500);
+        }
+
+            .empty-state i {
+                font-size: 4rem;
+                color: var(--neutral-300);
+                margin-bottom: 1rem;
+            }
+
+            .empty-state h3 {
+                font-size: 1.5rem;
+                color: var(--neutral-600);
+                margin-bottom: 0.5rem;
+            }
+
+            .empty-state p {
+                font-size: 1rem;
+                color: var(--neutral-500);
+            }
+
+        /* Loading States */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+      /*   keyframes shimmer {
+            0%
+
+        {
+            background-position: -200px 0;
+        }
+
+        100% {
+            background-position: calc(200px + 100%) 0;
+        }
+
+        }
+
+        /* Responsive Design */
+        media (max-width: 1200px) {
+            .container
+
+        {
+            padding: 1.5rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        }
+
+        media (max-width: 768px) {
+            .container
+
+        {
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            padding: 2rem;
+        }
+
+        .chart-container,
+        #reportForm,
+        .table-wrapper {
+            padding: 1.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .search-filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .reports-table th,
+        .reports-table td {
+            padding: 1rem 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        } */
+
+        /*  (max-width: 480px) {
+            h1
+
+        {
+            font-size: 2rem;
+        }
+
+        h1 i {
+            font-size: 1.75rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .chart-container,
+        #reportForm {
+            padding: 1rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        } */
+    </style>
+</head>
+<body>
     <div class="container">
-        <h1>Submit Report</h1>
+        <!-- Header Section -->
+        <div class="header-section">
+            <h1><i class="fas fa-chart-line"></i> Professional Reports Dashboard</h1>
+            <p class="subtitle">Comprehensive Analytics & Issue Management System</p>
+        </div>
 
-        <form id="reportForm">
-            <label for="companyName">Company Name:</label>
-            <input type="text" id="companyName" name="companyName" required>
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="stat-number" id="totalReports">0</div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-number" id="pendingReports">0</div>
+                <div class="stat-label">Pending Issues</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-number" id="resolvedReports">0</div>
+                <div class="stat-label">Resolved Issues</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-icon"><i class="fas fa-fire"></i></div>
+                <div class="stat-number" id="urgentReports">0</div>
+                <div class="stat-label">Urgent Issues</div>
+            </div>
+        </div>
 
-            <label for="issueType">Issue Type:</label>
-            <select id="issueType" name="issueType" required>
-                <option value="">Select Issue Type</option>
-                <option value="Stock Shortage">Stock Shortage</option>
-                <option value="Distribution Issues">Distribution Issues</option>
-                <option value="Other">Other</option>
-            </select>
+        <!-- Chart Container -->
+        <div class="chart-container">
+            <h2><i class="fas fa-chart-pie"></i> Shipments by Status (This Month)</h2>
+            <canvas id="monthlyChart"></canvas>
+        </div>
 
-            <label for="details">Details:</label>
-            <textarea id="details" name="details" rows="5" required></textarea>
+        <!-- Submit Report Form -->
+        <div id="reportForm">
+            <h2><i class="fas fa-file-plus"></i> Submit New Report</h2>
+            <form id="reportSubmissionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="companyName">
+                            <i class="fas fa-building"></i>
+                            Company Name
+                        </label>
+                        <input type="text" id="companyName" name="companyName" required placeholder="Enter company name">
+                    </div>
+                    <div class="form-group">
+                        <label for="issueType">
+                            <i class="fas fa-tags"></i>
+                            Issue Type
+                        </label>
+                        <select id="issueType" name="issueType" required>
+                            <option value="">Select Issue Type</option>
+                            <option value="Stock Shortage">Stock Shortage</option>
+                            <option value="Distribution Issues">Distribution Issues</option>
+                            <option value="Quality Control">Quality Control</option>
+                            <option value="Delivery Delays">Delivery Delays</option>
+                            <option value="System Issues">System Issues</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="details">
+                        <i class="fas fa-align-left"></i>
+                        Issue Details
+                    </label>
+                    <textarea id="details" name="details" rows="5" required placeholder="Provide detailed description of the issue..."></textarea>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Report
+                </button>
+            </form>
+        </div>
 
-            <button type="submit">Submit Report</button>
-        </form>
-
-        <h2>Submitted Reports</h2>
-        <div id="reportList"></div>
+        <!-- Reports Table -->
+        <div class="reports-table">
+            <div class="table-header">
+                <div class="table-title">
+                    <i class="fas fa-list"></i>
+                    Submitted Reports
+                </div>
+                <div class="search-filters">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchReports" placeholder="Search reports by company, issue type...">
+                    </div>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                    <select class="filter-select" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="Stock Shortage">Stock Shortage</option>
+                        <option value="Distribution Issues">Distribution Issues</option>
+                        <option value="Quality Control">Quality Control</option>
+                        <option value="Delivery Delays">Delivery Delays</option>
+                        <option value="System Issues">System Issues</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-building"></i> Company Name</th>
+                            <th><i class="fas fa-tags"></i> Issue Type</th>
+                            <th><i class="fas fa-align-left"></i> Details</th>
+                            <th><i class="fas fa-calendar"></i> Date</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportList">
+                        <!-- Reports will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <script src="~/js/report.js"></script>
+
+    <script>
+        // Enhanced JavaScript for the reports page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeReportsPage();
+            loadSampleData();
+            updateStatistics();
+        });
+
+        function initializeReportsPage() {
+            // Initialize form submission
+            const form = document.getElementById('reportSubmissionForm');
+            if (form) {
+                form.addEventListener('submit', handleFormSubmission);
+            }
+
+            // Initialize search and filters
+            const searchInput = document.getElementById('searchReports');
+            const statusFilter = document.getElementById('statusFilter');
+            const typeFilter = document.getElementById('typeFilter');
+
+            if (searchInput) searchInput.addEventListener('input', filterReports);
+            if (statusFilter) statusFilter.addEventListener('change', filterReports);
+            if (typeFilter) typeFilter.addEventListener('change', filterReports);
+
+            // Initialize chart
+            initializeChart();
+        }
+
+        function handleFormSubmission(e) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const reportData = {
+                companyName: formData.get('companyName'),
+                issueType: formData.get('issueType'),
+                details: formData.get('details'),
+                date: new Date().toLocaleDateString(),
+                status: 'pending'
+            };
+
+            addReportToTable(reportData);
+            e.target.reset();
+            updateStatistics();
+            showNotification('Report submitted successfully!', 'success');
+        }
+
+        function addReportToTable(reportData) {
+            const tbody = document.getElementById('reportList');
+            const row = document.createElement('tr');
+
+            const statusClass = getStatusClass(reportData.status);
+            const statusIcon = getStatusIcon(reportData.status);
+
+            row.innerHTML = `
+                <td>${reportData.companyName}</td>
+                <td>${reportData.issueType}</td>
+                <td>${reportData.details.substring(0, 100)}${reportData.details.length > 100 ? '...' : ''}</td>
+                <td>${reportData.date}</td>
+                <td>
+                    <span class="status-badge ${statusClass}">
+                        <i class="${statusIcon}"></i>
+                        ${reportData.status.charAt(0).toUpperCase() + reportData.status.slice(1)}
+                    </span>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pending': return 'status-pending';
+                case 'resolved': return 'status-resolved';
+                case 'urgent': return 'status-urgent';
+                default: return 'status-pending';
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'pending': return 'fas fa-clock';
+                case 'resolved': return 'fas fa-check-circle';
+                case 'urgent': return 'fas fa-exclamation-triangle';
+                default: return 'fas fa-clock';
+            }
+        }
+
+        function loadSampleData() {
+            const sampleReports = [
+                {
+                    companyName: 'MediCorp Pharmaceuticals',
+                    issueType: 'Stock Shortage',
+                    details: 'Critical shortage of insulin supplies affecting multiple distribution centers',
+                    date: '2024-01-15',
+                    status: 'urgent'
+                },
+                {
+                    companyName: 'HealthPlus Distribution',
+                    issueType: 'Distribution Issues',
+                    details: 'Delayed shipments to rural areas due to transportation challenges',
+                    date: '2024-01-14',
+                    status: 'pending'
+                },
+                {
+                    companyName: 'PharmaLink Solutions',
+                    issueType: 'Quality Control',
+                    details: 'Temperature control issues detected in cold chain storage facility',
+                    date: '2024-01-13',
+                    status: 'resolved'
+                }
+            ];
+
+            sampleReports.forEach(report => addReportToTable(report));
+        }
+
+        function updateStatistics() {
+            const rows = document.querySelectorAll('#reportList tr');
+            let total = rows.length;
+            let pending = 0, resolved = 0, urgent = 0;
+
+            rows.forEach(row => {
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    const status = statusBadge.textContent.toLowerCase().trim();
+                    if (status.includes('pending')) pending++;
+                    else if (status.includes('resolved')) resolved++;
+                    else if (status.includes('urgent')) urgent++;
+                }
+            });
+
+            document.getElementById('totalReports').textContent = total;
+            document.getElementById('pendingReports').textContent = pending;
+            document.getElementById('resolvedReports').textContent = resolved;
+            document.getElementById('urgentReports').textContent = urgent;
+        }
+
+        function filterReports() {
+            const searchTerm = document.getElementById('searchReports').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const rows = document.querySelectorAll('#reportList tr');
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+
+                const company = cells[0].textContent.toLowerCase();
+                const type = cells[1].textContent;
+                const details = cells[2].textContent.toLowerCase();
+                const status = cells[4].textContent.toLowerCase();
+
+                const matchesSearch = !searchTerm ||
+                    company.includes(searchTerm) ||
+                    details.includes(searchTerm);
+
+                const matchesStatus = !statusFilter || status.includes(statusFilter);
+                const matchesType = !typeFilter || type === typeFilter;
+
+                row.style.display = matchesSearch && matchesStatus && matchesType ? '' : 'none';
+            });
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('monthlyChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Delivered', 'In Transit', 'Pending', 'Delayed'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: [
+                            '#059669',
+                            '#2563eb',
+                            '#f59e0b',
+                            '#dc2626'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    weight: '600'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#059669' : '#dc2626'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                font-weight: 600;
+            `;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+

@@ -1,130 +1,756 @@
 @model Pharmaflow7.Models.AddDriverViewModel
 
 @{
-    ViewData["Title"] = "إضافة سائق جديد";
+    ViewData["Title"] = "Add New Driver";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إضافة سائق جديد</title>
-<link rel="stylesheet" href="~/css/add_driver.css">
-<!-- Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Pharmaflow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Enhanced Professional Add Driver Page Styles */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary-color: #059669;
+            --secondary-dark: #047857;
+            --accent-color: #f59e0b;
+            --accent-dark: #d97706;
+            --danger-color: #dc2626;
+            --warning-color: #f59e0b;
+            --success-color: #059669;
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-dark) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-dark) 100%);
+            --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --border-radius-sm: 6px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 16px;
+            --border-radius-2xl: 20px;
+            --transition-fast: 0.15s ease-in-out;
+            --transition-normal: 0.3s ease-in-out;
+            --transition-slow: 0.5s ease-in-out;
+        }
 
-<!-- Main Content -->
-<div class="form-container">
-    <div class="form-header">
-        <h1><i class="fas fa-user-plus"></i> إضافة سائق جديد</h1>
-        <p>قم بإدخال بيانات السائق الجديد</p>
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        
+            color: var(--neutral-700);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Form Container */
+        .form-container {
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 3rem;
+            background: white;
+            border-radius: var(--border-radius-2xl);
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid var(--neutral-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .form-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 8px;
+                background: var(--gradient-primary);
+                border-radius: var(--border-radius-2xl) var(--border-radius-2xl) 0 0;
+            }
+
+        /* Form Header */
+        .form-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--neutral-200);
+            position: relative;
+        }
+
+            .form-header::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80px;
+                height: 4px;
+                background: var(--gradient-primary);
+                border-radius: 2px;
+            }
+
+            .form-header h1 {
+                font-size: 3.2rem;
+                font-weight: 800;
+                color: var(--neutral-800);
+                margin-bottom: 1rem;
+              
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+                .form-header h1 i {
+                    color: var(--primary-color);
+                    margin-right: 1rem;
+                    font-size: 2.8rem;
+                }
+
+            .form-header p {
+                font-size: 1.2rem;
+                color: var(--neutral-600);
+                font-weight: 500;
+                margin-top: 0.5rem;
+            }
+
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: var(--neutral-100);
+            color: var(--neutral-600);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+            .progress-step.active {
+                background: var(--gradient-primary);
+                color: white;
+            }
+
+            .progress-step i {
+                font-size: 1rem;
+            }
+
+        /* Form Sections */
+        .form-section {
+            background: linear-gradient(135deg, var(--neutral-50) 0%, white 100%);
+            padding: 2.5rem;
+            border-radius: var(--border-radius-xl);
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--neutral-200);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .form-section::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--gradient-secondary);
+            }
+
+            .form-section h3 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--neutral-800);
+                margin-bottom: 2rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid var(--primary-light);
+            }
+
+                .form-section h3 i {
+                    color: var(--primary-color);
+                    font-size: 1.6rem;
+                }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+                color: var(--neutral-700);
+                font-size: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+                .form-group label i {
+                    color: var(--primary-color);
+                    font-size: 1.1rem;
+                }
+
+            .form-group input[type="text"],
+            .form-group input[type="email"],
+            .form-group input[type="tel"],
+            .form-group input[type="password"] {
+                width: 100%;
+                padding: 1rem 1.25rem;
+                border: 2px solid var(--neutral-300);
+                border-radius: var(--border-radius-lg);
+                font-size: 1rem;
+                color: var(--neutral-800);
+                transition: all var(--transition-normal);
+                background-color: white;
+                font-family: inherit;
+                position: relative;
+            }
+
+            .form-group input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+                transform: translateY(-2px);
+            }
+
+            .form-group input.error {
+                border-color: var(--danger-color);
+                box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+            }
+
+        .text-danger {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--neutral-200);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1.2rem 2.5rem;
+            border: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-md);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+            min-width: 180px;
+            text-decoration: none;
+        }
+
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left var(--transition-slow);
+            }
+
+            .btn:hover::before {
+                left: 100%;
+            }
+
+            .btn:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-xl);
+            }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--neutral-600), var(--neutral-700));
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background: linear-gradient(135deg, var(--neutral-700), var(--neutral-800));
+            }
+
+        /* Validation Summary */
+        .validation-summary {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(220, 38, 38, 0.05));
+            border: 2px solid var(--danger-color);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-top: 2rem;
+            color: var(--danger-color);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .validation-summary::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--danger-color);
+            }
+
+            .validation-summary h4 {
+                font-size: 1.3rem;
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                color: var(--danger-color);
+                font-weight: 700;
+            }
+
+                .validation-summary h4 i {
+                    font-size: 1.4rem;
+                }
+
+            .validation-summary ul {
+                list-style: none;
+                padding-left: 0;
+            }
+
+                .validation-summary ul li {
+                    margin-bottom: 0.75rem;
+                    padding: 0.5rem;
+                    background: rgba(220, 38, 38, 0.05);
+                    border-radius: var(--border-radius-sm);
+                    border-left: 3px solid var(--danger-color);
+                }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+        }
+
+        .spinner {
+            border: 8px solid var(--neutral-200);
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1s linear infinite;
+        }
+
+        keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        /* Notification Messages */
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 1.2rem 2rem;
+            border-radius: var(--border-radius-lg);
+            font-weight: 600;
+            box-shadow: var(--shadow-xl);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.5s forwards;
+            min-width: 300px;
+        }
+
+            .message.success {
+                background: var(--gradient-secondary);
+                color: white;
+            }
+
+            .message.error {
+                background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+                color: white;
+            }
+
+            .message i {
+                font-size: 1.3rem;
+            }
+
+        keyframes slideIn {
+            from
+
+        {
+            left: -400px;
+            opacity: 0;
+        }
+
+        to {
+            left: 20px;
+            opacity: 1;
+        }
+
+        }
+
+        /* Input Focus Effects */
+        .form-group {
+            position: relative;
+        }
+
+            .form-group input:focus + .input-highlight {
+                opacity: 1;
+                transform: scaleX(1);
+            }
+
+        .input-highlight {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transform: scaleX(0);
+            transition: all var(--transition-normal);
+        }
+
+        /* Responsive Design */
+         (max-width: 768px) {
+            .form-container
+
+        {
+            margin: 1.5rem;
+            padding: 2rem;
+        }
+
+        .form-header h1 {
+            font-size: 2.5rem;
+        }
+
+            .form-header h1 i {
+                font-size: 2.2rem;
+            }
+
+        .form-header p {
+            font-size: 1.1rem;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+            .form-section h3 {
+                font-size: 1.6rem;
+            }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            width: 100%;
+            font-size: 1rem;
+            padding: 1rem 2rem;
+        }
+
+        .validation-summary {
+            padding: 1.5rem;
+        }
+
+            .validation-summary h4 {
+                font-size: 1.2rem;
+            }
+
+        .progress-indicator {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        }
+
+        media (max-width: 480px) {
+            .form-container
+
+        {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+        }
+
+            .form-header h1 i {
+                font-size: 1.8rem;
+            }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+
+            .form-section h3 {
+                font-size: 1.4rem;
+            }
+
+        .form-group label {
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            font-size: 0.95rem;
+            padding: 0.9rem 1.8rem;
+        }
+
+        .message {
+            font-size: 0.9rem;
+            padding: 1rem 1.5rem;
+            min-width: 250px;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="form-container">
+        <div class="form-header">
+            <h1><i class="fas fa-user-plus"></i> Add New Driver</h1>
+            <p>Please enter the new driver's details carefully to ensure accuracy</p>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <div class="progress-step active">
+                <i class="fas fa-user"></i>
+                Personal Information
+            </div>
+            <div class="progress-step">
+                <i class="fas fa-id-card"></i>
+                License Information
+            </div>
+            <div class="progress-step">
+                <i class="fas fa-check"></i>
+                Confirmation
+            </div>
+        </div>
+
+        <form asp-action="AddDriver" asp-controller="Driver" method="post" class="driver-form">
+            @Html.AntiForgeryToken()
+
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h3><i class="fas fa-user"></i> Personal Information</h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="FullName">
+                            <i class="fas fa-user"></i> Full Name
+                        </label>
+                        <input type="text" id="FullName" name="FullName" required
+                               placeholder="Enter full name of the driver" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Email">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email" id="Email" name="Email" required
+                               placeholder="Enter email address" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ContactNumber">
+                            <i class="fas fa-phone"></i> Phone Number
+                        </label>
+                        <input type="tel" id="ContactNumber" name="ContactNumber" required
+                               placeholder="Enter phone number" />
+                        <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input type="password" id="Password" name="Password" required
+                               placeholder="Enter password (at least 8 characters, 1 uppercase, 1 number)" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- License Information Section -->
+            <div class="form-section">
+                <h3><i class="fas fa-id-card"></i> License and ID Information</h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="LicenseNumber">
+                            <i class="fas fa-id-badge"></i> License Number
+                        </label>
+                        <input type="text" id="LicenseNumber" name="LicenseNumber" required
+                               placeholder="Enter driving license number" />
+                        <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="NationalId">
+                            <i class="fas fa-id-card"></i> National ID Number
+                        </label>
+                        <input type="text" id="NationalId" name="NationalId" required
+                               placeholder="Enter national ID number" />
+                        <span asp-validation-for="NationalId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Driver
+                </button>
+                <a href="@Url.Action("ManageDrivers", "Driver")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+
+            <!-- Validation Summary -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="validation-summary">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Please correct the following errors:</h4>
+                    <ul>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </form>
     </div>
 
-    <form asp-action="AddDriver" asp-controller="Driver" method="post" class="driver-form">
-        @Html.AntiForgeryToken()
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading" style="display: none;">
+        <div class="spinner"></div>
+    </div>
 
-        <!-- Personal Information Section -->
-        <div class="form-section">
-            <h3><i class="fas fa-user"></i> البيانات الشخصية</h3>
-
-            <div class="form-group">
-                <label for="FullName">
-                    <i class="fas fa-user"></i> الاسم الكامل
-                </label>
-                <input type="text" id="FullName" name="FullName" required
-                       placeholder="أدخل الاسم الكامل للسائق" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label for="Email">
-                    <i class="fas fa-envelope"></i> البريد الإلكتروني
-                </label>
-                <input type="email" id="Email" name="Email" required
-                       placeholder="أدخل البريد الإلكتروني" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label for="ContactNumber">
-                    <i class="fas fa-phone"></i> رقم الهاتف
-                </label>
-                <input type="tel" id="ContactNumber" name="ContactNumber" required
-                       placeholder="أدخل رقم الهاتف" />
-                <span asp-validation-for="ContactNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label for="Password">
-                    <i class="fas fa-lock"></i> كلمة المرور
-                </label>
-                <input type="password" id="Password" name="Password" required
-                       placeholder="أدخل كلمة المرور (8 أحرف على الأقل، حرف كبير، رقم)" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-        </div>
-
-        <!-- License Information Section -->
-        <div class="form-section">
-            <h3><i class="fas fa-id-card"></i> بيانات الرخصة والهوية</h3>
-
-            <div class="form-group">
-                <label for="LicenseNumber">
-                    <i class="fas fa-id-badge"></i> رقم الرخصة
-                </label>
-                <input type="text" id="LicenseNumber" name="LicenseNumber" required
-                       placeholder="أدخل رقم رخصة القيادة" />
-                <span asp-validation-for="LicenseNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label for="NationalId">
-                    <i class="fas fa-id-card"></i> رقم البطاقة الشخصية
-                </label>
-                <input type="text" id="NationalId" name="NationalId" required
-                       placeholder="أدخل رقم البطاقة الشخصية" />
-                <span asp-validation-for="NationalId" class="text-danger"></span>
-            </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> حفظ السائق
-            </button>
-            <a href="@Url.Action("ManageDrivers", "Driver")" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> العودة إلى القائمة
-            </a>
-        </div>
-
-        <!-- Validation Summary -->
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="validation-summary">
-                <h4><i class="fas fa-exclamation-triangle"></i> يرجى تصحيح الأخطاء التالية:</h4>
-                <ul>
-                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                    {
-                        <li>@error.ErrorMessage</li>
-                    }
-                </ul>
-            </div>
-        }
-    </form>
-</div>
-
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loading" style="display: none;">
-    <div class="spinner"></div>
-</div>
-
-@section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
     <script>
-        // Form validation using jQuery Validate
+        // Enhanced form validation and interactions
         $(document).ready(function () {
-            $('.driver-form').validate({
+            // Initialize form validation
+            $(".driver-form").validate({
                 rules: {
                     FullName: {
                         required: true,
@@ -135,7 +761,7 @@
                         email: true
                     },
                     ContactNumber: {
-                        required: true // يمكن تعديل القاعدة حسب تنسيق رقم الهاتف المطلوب
+                        required: true
                     },
                     Password: {
                         required: true,
@@ -153,58 +779,104 @@
                 },
                 messages: {
                     FullName: {
-                        required: "الاسم الكامل مطلوب.",
-                        minlength: "الاسم يجب أن يكون أطول من حرفين."
+                        required: "Full name is required.",
+                        minlength: "Full name must be at least 2 characters long."
                     },
                     Email: {
-                        required: "البريد الإلكتروني مطلوب.",
-                        email: "يرجى إدخال بريد إلكتروني صالح."
+                        required: "Email is required.",
+                        email: "Please enter a valid email address."
                     },
                     ContactNumber: {
-                        required: "رقم الهاتف مطلوب.",
-                        phoneUS: "يرجى إدخال رقم هاتف صالح."
+                        required: "Phone number is required."
                     },
                     Password: {
-                        required: "كلمة المرور مطلوبة.",
-                        minlength: "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
-                        pattern: "كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل."
+                        required: "Password is required.",
+                        minlength: "Password must be at least 8 characters long.",
+                        pattern: "Password must contain at least one uppercase letter and one number."
                     },
                     LicenseNumber: {
-                        required: "رقم الرخصة مطلوب.",
-                        minlength: "رقم الرخصة يجب أن يكون 5 أحرف على الأقل."
+                        required: "License number is required.",
+                        minlength: "License number must be at least 5 characters long."
                     },
                     NationalId: {
-                        required: "رقم البطاقة الشخصية مطلوب.",
-                        minlength: "رقم البطاقة يجب أن يكون 5 أحرف على الأقل."
+                        required: "National ID is required.",
+                        minlength: "National ID must be at least 5 characters long."
                     }
                 },
-                errorElement: 'span',
+                errorElement: "span",
                 errorPlacement: function (error, element) {
-                    error.addClass('text-danger');
+                    error.addClass("text-danger");
                     error.insertAfter(element);
                 },
                 highlight: function (element) {
-                    $(element).addClass('error');
+                    $(element).addClass("error");
                 },
                 unhighlight: function (element) {
-                    $(element).removeClass('error');
+                    $(element).removeClass("error");
                 }
             });
 
+            // Progress indicator functionality
+            updateProgressIndicator();
+
             // Show loading overlay on form submit
-            $('.driver-form').on('submit', function (e) {
+            $(".driver-form").on("submit", function (e) {
                 if ($(this).valid()) {
-                    $('#loading').show();
+                    $("#loading").show();
+                    showMessage("Saving driver data...", "success");
                 }
+            });
+
+            // Input focus effects
+            $("input").on("focus", function() {
+                $(this).closest(".form-group").addClass("focused");
+            }).on("blur", function() {
+                $(this).closest(".form-group").removeClass("focused");
             });
         });
 
+        function updateProgressIndicator() {
+            const steps = $(".progress-step");
+            const personalFields = $("#FullName, #Email, #ContactNumber, #Password");
+            const licenseFields = $("#LicenseNumber, #NationalId");
+
+            // Check personal information completion
+            let personalComplete = true;
+            personalFields.each(function() {
+                if (!$(this).val()) {
+                    personalComplete = false;
+                    return false;
+                }
+            });
+
+            // Check license information completion
+            let licenseComplete = true;
+            licenseFields.each(function() {
+                if (!$(this).val()) {
+                    licenseComplete = false;
+                    return false;
+                }
+            });
+
+            // Update progress steps
+            steps.removeClass("active");
+            steps.eq(0).addClass("active");
+
+            if (personalComplete) {
+                steps.eq(1).addClass("active");
+            }
+
+            if (personalComplete && licenseComplete) {
+                steps.eq(2).addClass("active");
+            }
+        }
+
         // Show messages
         function showMessage(message, type) {
-            const messageDiv = document.createElement('div');
+            const messageDiv = document.createElement("div");
             messageDiv.className = `message ${type}`;
             messageDiv.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <i class="fas ${type === "success" ? "fa-check-circle" : "fa-exclamation-circle"}"></i>
                 ${message}
             `;
 
@@ -214,5 +886,12 @@
                 messageDiv.remove();
             }, 5000);
         }
+
+        // Update progress on input change
+        $("input").on("input", function() {
+            setTimeout(updateProgressIndicator, 100);
+        });
     </script>
-}
+</body>
+</html>
+

@@ -23,16 +23,16 @@
 
         /* Navbar Styles */
         .navbar {
-            background: linear-gradient(135deg, var(--primary), #2e6bc5);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary), #2e6bc5) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            padding: 1rem 2rem !important;
         }
 
         .navbar-brand {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 1.8rem !important;
+            font-weight: 700 !important;
             color: #fff !important;
-            transition: color 0.3s ease;
+            transition: color 0.3s ease !important;
         }
 
         .navbar-brand:hover {
@@ -41,26 +41,26 @@
 
         .nav-link {
             color: var(--text-light) !important;
-            font-weight: 500;
-            margin: 0 1rem;
-            position: relative;
-            transition: all 0.3s ease;
+            font-weight: 500 !important;
+            margin: 0 1rem !important;
+            position: relative !important;
+            transition: all 0.3s ease !important;
         }
 
         .nav-link:hover {
-            color: var(--accent) !important;
-            transform: translateY(-2px);
+            color: var(--accent) !important ;
+            transform: translateY(-2px) !important;
         }
 
         .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            left: 0;
-            background-color: var(--accent);
-            transition: width 0.3s ease;
+            content: '' !important;
+            position: absolute !important;
+            width: 0 !important;
+            height: 2px !important;
+            bottom: -5px !important;
+            left: 0 !important;
+            background-color: var(--accent) !important; 
+            transition: width 0.3s ease !important;
         }
 
         .nav-link:hover::after {
@@ -68,18 +68,18 @@
         }
 
         .btn-outline-light {
-            border-color: var(--text-light);
-            color: var(--text-light);
-            transition: all 0.3s ease;
-            border-radius: 30px;
-            padding: 8px 20px;
+            border-color: var(--text-light) !important;
+            color: var(--text-light) !important;
+            transition: all 0.3s ease !important;
+            border-radius: 30px !important;
+            padding: 8px 20px !important;
         }
 
         .btn-outline-light:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            transform: scale(1.05);
+            background: var(--accent ) !important;
+            border-color: var(--accent) !important;
+            color: #fff !important;
+            transform: scale(1.05) !important;
         }
 
         /* New Toggle-Style Login/Register Buttons */
@@ -101,7 +101,7 @@
             transition: color 0.3s ease;
             cursor: pointer;
             z-index: 2;
-            border-radius: 30px;
+            border-radius: 30px !important;
         }
 
         .auth-buttons .login {
@@ -315,7 +315,7 @@
                                             <a class="nav-link" asp-area="" asp-controller="Distributor" asp-action="AddStore">Add Store</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" asp-area="" asp-controller="Distributor" asp-action="ManageStores">Manage Stores</a>
+                                            <a class="nav-link" asp-area="" asp-controller="Driver" asp-action="AddDriver">Add Driver</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" asp-area="" asp-controller="Distributor" asp-action="report">Report</a>

@@ -9,114 +9,951 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"] - Pharmaflow</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <style>
+        /* Enhanced Professional Add Store Page Styles */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary-color: #059669;
+            --secondary-dark: #047857;
+            --accent-color: #f59e0b;
+            --accent-dark: #d97706;
+            --danger-color: #dc2626;
+            --warning-color: #f59e0b;
+            --success-color: #059669;
+            --info-color: #0891b2;
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-dark) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-dark) 100%);
+            --gradient-info: linear-gradient(135deg, var(--info-color) 0%, #0e7490 100%);
+            --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --border-radius-sm: 6px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 16px;
+            --border-radius-2xl: 20px;
+            --transition-fast: 0.15s ease-in-out;
+            --transition-normal: 0.3s ease-in-out;
+            --transition-slow: 0.5s ease-in-out;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            
+            color: var(--neutral-700);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+            .header-section::before {
+                content: '';
+                position: absolute;
+                top: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 200px;
+                height: 6px;
+                background: var(--gradient-primary);
+                border-radius: 3px;
+                opacity: 0.8;
+            }
+
+        /* Main Title */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+         
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #fdfeff;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            padding: 3rem;
+            border-radius: var(--border-radius-2xl);
+            box-shadow: var(--shadow-xl);
+            margin-bottom: 3rem;
+            border: 1px solid var(--neutral-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .form-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: var(--gradient-primary);
+            }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+            .form-header h2 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: var(--neutral-800);
+                margin-bottom: 0.75rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+                .form-header h2 i {
+                    color: var(--primary-color);
+                    font-size: 2rem;
+                }
+
+            .form-header p {
+                font-size: 1.1rem;
+                color: var(--neutral-600);
+                font-weight: 500;
+            }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+                color: var(--neutral-800);
+                font-size: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+                .form-group label i {
+                    color: var(--primary-color);
+                    font-size: 1.1rem;
+                }
+
+            .form-group input {
+                width: 100%;
+                padding: 1rem 1.25rem;
+                border: 2px solid var(--neutral-300);
+                border-radius: var(--border-radius-lg);
+                font-size: 1rem;
+                color: var(--neutral-800);
+                transition: all var(--transition-normal);
+                background-color: white;
+                font-family: inherit;
+            }
+
+                .form-group input:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+                    transform: translateY(-2px);
+                }
+
+        .text-danger {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* Map Container */
+        .map-container {
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 2px solid var(--neutral-200);
+        }
+
+        .map-header {
+            background: linear-gradient(135deg, var(--neutral-800) 0%, var(--neutral-700) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .map-header i {
+                font-size: 1.2rem;
+            }
+
         #map {
-            height: 400px;
+            height: 450px;
             width: 100%;
+            border: none;
+        }
+
+        /* Map Instructions */
+        .map-instructions {
+            background: var(--gradient-info);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .map-instructions i {
+                font-size: 1.1rem;
+            }
+
+        /* Submit Button */
+        .submit-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--neutral-200);
+        }
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.2rem 3rem;
+            border: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-lg);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+            .btn-submit::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left var(--transition-slow);
+            }
+
+            .btn-submit:hover::before {
+                left: 100%;
+            }
+
+            .btn-submit:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-2xl);
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            }
+
+            .btn-submit i {
+                font-size: 1.3rem;
+            }
+
+        /* Stores Table Section */
+        .stores-section {
+            background: white;
+            border-radius: var(--border-radius-2xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            border: 1px solid var(--neutral-200);
+            position: relative;
+        }
+
+            .stores-section::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: var(--gradient-secondary);
+            }
+
+        .section-header {
+            padding: 2.5rem;
+            background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--neutral-800);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+            .section-title i {
+                color: var(--secondary-color);
+                font-size: 2rem;
+            }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--neutral-600);
+            font-weight: 500;
+        }
+
+        /* Table Styles */
+        .table-container {
+            padding: 2rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
+        }
+
+            .table th,
+            .table td {
+                padding: 1.5rem;
+                text-align: left;
+                border-bottom: 1px solid var(--neutral-200);
+            }
+
+            .table th {
+                background: linear-gradient(135deg, var(--neutral-800) 0%, var(--neutral-700) 100%);
+                color: white;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.9rem;
+                letter-spacing: 0.05em;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+                .table th:first-child {
+                    border-top-left-radius: var(--border-radius-lg);
+                }
+
+                .table th:last-child {
+                    border-top-right-radius: var(--border-radius-lg);
+                }
+
+            .table tbody tr {
+                transition: all var(--transition-normal);
+                position: relative;
+            }
+
+                .table tbody tr:nth-child(even) {
+                    background-color: var(--neutral-50);
+                }
+
+                .table tbody tr:hover {
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                    transform: translateY(-2px);
+                    box-shadow: var(--shadow-md);
+                }
+
+                    .table tbody tr:hover::after {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        bottom: 0;
+                        width: 4px;
+                        background: var(--gradient-secondary);
+                    }
+
+            .table td {
+                font-size: 0.95rem;
+                color: var(--neutral-700);
+                font-weight: 500;
+            }
+
+                .table td:first-child {
+                    font-weight: 700;
+                    color: var(--primary-color);
+                }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--neutral-500);
+        }
+
+            .empty-state i {
+                font-size: 4rem;
+                color: var(--neutral-300);
+                margin-bottom: 1.5rem;
+            }
+
+            .empty-state h3 {
+                font-size: 1.5rem;
+                color: var(--neutral-600);
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+            }
+
+            .empty-state p {
+                font-size: 1rem;
+                color: var(--neutral-500);
+                font-weight: 500;
+            }
+
+        /* Notification Messages */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1.2rem 2rem;
+            border-radius: var(--border-radius-lg);
+            font-weight: 600;
+            box-shadow: var(--shadow-xl);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.5s forwards;
+            min-width: 300px;
+        }
+
+            .notification.success {
+                background: var(--gradient-secondary);
+                color: white;
+            }
+
+            .notification.error {
+                background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+                color: white;
+            }
+
+            .notification i {
+                font-size: 1.3rem;
+            }
+
+        keyframes slideIn {
+            from
+
+        {
+            right: -400px;
+            opacity: 0;
+        }
+
+        to {
+            right: 20px;
+            opacity: 1;
+        }
+
+        }
+
+        /* Responsive Design */
+        media (max-width: 1200px) {
+            .container
+
+        {
+            padding: 1.5rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        }
+
+        media (max-width: 768px) {
+            .container
+
+        {
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        .form-container,
+        .stores-section {
+            padding: 2rem;
+        }
+
+        .section-header {
+            padding: 2rem;
+        }
+
+        .form-header h2,
+        .section-title {
+            font-size: 1.8rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+            .form-header h2 i,
+            .section-title i {
+                font-size: 1.6rem;
+            }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group input {
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
+        }
+
+        #map {
+            height: 350px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .table-container {
+            padding: 1rem;
+        }
+
+        }
+
+        media (max-width: 480px) {
+            h1
+
+        {
+            font-size: 2rem;
+        }
+
+        .form-container,
+        .stores-section {
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+        }
+
+        .form-header h2,
+        .section-title {
+            font-size: 1.6rem;
+        }
+
+            .form-header h2 i,
+            .section-title i {
+                font-size: 1.4rem;
+            }
+
+        .form-group input {
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        #map {
+            height: 300px;
+        }
+
+        .btn-submit {
+            font-size: 1rem;
+            padding: 0.9rem 1.8rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .notification {
+            font-size: 0.9rem;
+            padding: 1rem 1.5rem;
+            min-width: 250px;
+        }
+
+        .empty-state {
+            padding: 3rem 1rem;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+            }
+
+            .empty-state h3 {
+                font-size: 1.3rem;
+            }
+
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="mb-4">Add New Store</h1>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <h1><i class="fas fa-store"></i> Professional Store Management</h1>
+            <p class="subtitle">Add and manage pharmaceutical distribution stores with interactive mapping</p>
+        </div>
 
-        <!-- Form لإضافة مخزن جديد -->
-        <form asp-action="AddStore" method="post" id="addStoreForm">
-            <div class="mb-3">
-                <label asp-for="NewStore.StoreName" class="form-label" style="color: white;">Store Name</label>
-                <input asp-for="NewStore.StoreName" class="form-control" />
-                <span asp-validation-for="NewStore.StoreName" class="text-danger"></span>
+        <!-- Add Store Form -->
+        <div class="form-container">
+            <div class="form-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Store</h2>
+                <p>Enter store details and select location on the interactive map</p>
             </div>
-            <div class="mb-3">
-                <label asp-for="NewStore.StoreAddress" class="form-label" style="color: white;">Store Address</label>
-                <input asp-for="NewStore.StoreAddress" class="form-control" id="storeAddress" />
-                <span asp-validation-for="NewStore.StoreAddress" class="text-danger"></span>
-            </div>
-            <div id="map" class="mb-3"></div>
-            <button type="submit" class="btn btn-primary">Add Store</button>
-        </form>
 
-        <!-- جدول المخازن الموجودة -->
-        <div class="mt-5">
-            <h3>Existing Stores</h3>
-            @if (Model.ExistingStores.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Store ID</th>
-                                <th>Store Name</th>
-                                <th>Store Address</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var store in Model.ExistingStores)
-                            {
-                                <tr>
-                                    <td>@store.Id</td>
-                                    <td>@store.StoreName</td>
-                                    <td>@store.StoreAddress</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+            <form asp-action="AddStore" method="post" id="addStoreForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="NewStore.StoreName">
+                            <i class="fas fa-store"></i>
+                            Store Name
+                        </label>
+                        <input asp-for="NewStore.StoreName" placeholder="Enter store name" />
+                        <span asp-validation-for="NewStore.StoreName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NewStore.StoreAddress">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Store Address
+                        </label>
+                        <input asp-for="NewStore.StoreAddress" id="storeAddress" placeholder="Click on map to auto-fill address" />
+                        <span asp-validation-for="NewStore.StoreAddress" class="text-danger"></span>
+                    </div>
                 </div>
-            }
-            else
-            {
-                <p class="text-muted">No stores added yet.</p>
-            }
+
+                <!-- Interactive Map -->
+                <div class="map-container">
+                    <div class="map-header">
+                        <i class="fas fa-map"></i>
+                        Interactive Store Location Map
+                    </div>
+                    <div id="map"></div>
+                    <div class="map-instructions">
+                        <i class="fas fa-info-circle"></i>
+                        Click anywhere on the map or drag the marker to select store location. Address will be automatically filled.
+                    </div>
+                </div>
+
+                <div class="submit-container">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-plus"></i>
+                        Add Store
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Existing Stores Section -->
+        <div class="stores-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-list"></i>
+                    Existing Stores
+                </div>
+                <p class="section-subtitle">Manage and view all registered pharmaceutical stores</p>
+            </div>
+
+            <div class="table-container">
+                @if (Model.ExistingStores.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-hashtag"></i> Store ID</th>
+                                    <th><i class="fas fa-store"></i> Store Name</th>
+                                    <th><i class="fas fa-map-marker-alt"></i> Store Address</th>
+                                    <th><i class="fas fa-cogs"></i> Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var store in Model.ExistingStores)
+                                {
+                                    <tr>
+                                        <td>@store.Id</td>
+                                        <td>@store.StoreName</td>
+                                        <td>@store.StoreAddress</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info" onclick="viewStoreOnMap(@store.Id)">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-warning" onclick="editStore(@store.Id)">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-store-slash"></i>
+                        <h3>No Stores Added Yet</h3>
+                        <p>Start by adding your first pharmaceutical store using the form above.</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script>
-        let map = L.map('map').setView([30.0444, 31.2357], 8);  
-        let marker;
+        // Enhanced Store Management JavaScript
+        let map, marker;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        marker = L.marker([30.0444, 31.2357], { draggable: true }).addTo(map);
-
-        map.on('click', function (e) {
-            marker.setLatLng(e.latlng);
-            updateAddress(e.latlng);
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            setupFormValidation();
         });
 
-        marker.on('dragend', function (e) {
-            updateAddress(e.target.getLatLng());
-        });
+        function initializeMap() {
+            // Initialize map centered on Egypt
+            map = L.map('map').setView([30.0444, 31.2357], 8);
+
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add initial marker
+            marker = L.marker([30.0444, 31.2357], {
+                draggable: true,
+                title: 'Drag me to select store location'
+            }).addTo(map);
+
+            // Map click event
+            map.on('click', function (e) {
+                marker.setLatLng(e.latlng);
+                updateAddress(e.latlng);
+                showNotification('Location selected! Address is being fetched...', 'success');
+            });
+
+            // Marker drag event
+            marker.on('dragend', function (e) {
+                updateAddress(e.target.getLatLng());
+                showNotification('Location updated! Address is being fetched...', 'success');
+            });
+
+            // Add custom marker icon
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<i class="fas fa-map-marker-alt" style="color: #2563eb; font-size: 2rem;"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+            marker.setIcon(customIcon);
+        }
 
         function updateAddress(latlng) {
+            const addressInput = document.getElementById("storeAddress");
+            addressInput.value = "Fetching address...";
+
             fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json`)
                 .then(response => response.json())
                 .then(data => {
                     if (data && data.display_name) {
-                        document.getElementById("storeAddress").value = data.display_name;
+                        addressInput.value = data.display_name;
+                        showNotification('Address updated successfully!', 'success');
                     } else {
-                        document.getElementById("storeAddress").value = "Address not found";
+                        addressInput.value = "Address not found";
+                        showNotification('Address not found for this location', 'error');
                     }
                 })
                 .catch(error => {
                     console.error("Error fetching address:", error);
-                    document.getElementById("storeAddress").value = "Error fetching address";
+                    addressInput.value = "Error fetching address";
+                    showNotification('Error fetching address. Please try again.', 'error');
                 });
         }
 
-         document.getElementById("addStoreForm").addEventListener("submit", function (event) {
-            const storeAddress = document.getElementById("storeAddress").value;
-            if (!storeAddress || storeAddress === "Address not found" || storeAddress === "Error fetching address") {
-                event.preventDefault();
-                alert("Please select a valid store address by clicking on the map.");
+        function setupFormValidation() {
+            const form = document.getElementById("addStoreForm");
+
+            form.addEventListener("submit", function (event) {
+                const storeAddress = document.getElementById("storeAddress").value;
+                const storeName = document.querySelector('input[name="NewStore.StoreName"]').value;
+
+                if (!storeName.trim()) {
+                    event.preventDefault();
+                    showNotification('Please enter a store name', 'error');
+                    return;
+                }
+
+                if (!storeAddress ||
+                    storeAddress === "Address not found" ||
+                    storeAddress === "Error fetching address" ||
+                    storeAddress === "Fetching address...") {
+                    event.preventDefault();
+                    showNotification('Please select a valid store address by clicking on the map', 'error');
+                    return;
+                }
+
+                showNotification('Adding store...', 'success');
+            });
+        }
+
+        function viewStoreOnMap(storeId) {
+            showNotification(`Viewing store ${storeId} on map`, 'success');
+            // Implementation for viewing store on map
+        }
+
+        function editStore(storeId) {
+            showNotification(`Editing store ${storeId}`, 'success');
+            // Implementation for editing store
+        }
+
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => notification.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                ${message}
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Add geolocation functionality
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const latlng = L.latLng(lat, lng);
+
+                    map.setView(latlng, 15);
+                    marker.setLatLng(latlng);
+                    updateAddress(latlng);
+                    showNotification('Current location detected!', 'success');
+                }, function(error) {
+                    showNotification('Unable to get current location', 'error');
+                });
+            } else {
+                showNotification('Geolocation is not supported by this browser', 'error');
             }
-        });
+        }
+
+        // Add location button to map
+        const locationButton = L.control({position: 'topright'});
+        locationButton.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+            div.innerHTML = '<button onclick="getCurrentLocation()" style="background: white; border: none; padding: 8px; cursor: pointer; border-radius: 4px;"><i class="fas fa-crosshairs"></i></button>';
+            div.style.backgroundColor = 'white';
+            div.style.backgroundSize = "30px 30px";
+            div.style.width = '40px';
+            div.style.height = '40px';
+            return div;
+        };
+        locationButton.addTo(map);
     </script>
 </body>
 </html>
+

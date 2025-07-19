@@ -1,79 +1,78 @@
 ﻿body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
     margin: 0;
-    padding: 20px;
+    padding: 0;
 }
 
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #1062ab;
+    max-width: 1200px;
+    margin: 20px auto;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-    color: #333;
-    text-align: center;
-    font-size: 24px; /* Standard heading size */
+h1, h2 {
+    color: #fdfdfd;
 }
 
-h2 {
-    color: #333;
-    text-align: center;
-    font-size: 20px; /* Standard heading size */
-    margin-top: 20px;
+.chart-container {
+    /* background: #fff; */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Natural spacing */
+.form-group {
+    margin-bottom: 15px;
 }
 
-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 14px; /* Standard label size */
-}
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #f9f9f9;
+    }
 
-input, select, textarea {
-    padding: 8px; /* Standard padding */
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px; /* Standard input text size */
-}
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
 
-textarea {
-    height: 100px; /* Natural textarea height */
-}
-
-button {
-    padding: 10px; /* Standard button padding */
-    background-color: #28a745;
+.btn {
+    background: #007bff;
     color: #fff;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px; /* Standard button text size */
-}
-
-    button:hover {
-        background-color: #218838;
-    }
-
-#reportList {
-    margin-top: 20px;
-}
-
-.report-item {
     padding: 10px;
-    border-bottom: 1px solid #ddd;
-    font-size: 14px; /* Standard report text size */
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-    .report-item:last-child {
-        border-bottom: none;
+    .btn:hover {
+        background: #0056b3;
     }
+
+.reports-table {
+    /* background: #fff; */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #007bff;
+    color: #fff;
+}

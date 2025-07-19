@@ -100,6 +100,10 @@ namespace Pharmaflow7.Controllers
                     .Where(s => s.DistributorId == user.Id)
                     .ToListAsync();
 
+                var driversCount = await _context.Drivers
+                    .Where(d => d.DistributorId == user.Id)
+                    .CountAsync();
+
                 var inventoryCount = shipments
                     .Where(s => s.Status == "Delivered")
                     .Sum(s => s.Quantity ?? 0);
@@ -112,6 +116,7 @@ namespace Pharmaflow7.Controllers
 
                 var data = new
                 {
+                    DriversCount = driversCount,
                     InventoryCount = inventoryCount,
                     IncomingShipments = incomingShipments,
                     OutgoingShipments = outgoingShipments
@@ -602,6 +607,166 @@ namespace Pharmaflow7.Controllers
             {
                 _logger.LogError(ex, "Error retrieving latest location for shipment {ShipmentId}", shipmentId);
                 return Json(new { success = false, message = "An error occurred while retrieving location." });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetMonthlyReport()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    return Unauthorized();
+                }
+
+                var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                var shipments = await _context.Shipments
+                    .Where(s => s.DistributorId == user.Id && s.CreatedAt >= startOfMonth)
+                    .GroupBy(s => s.Status)
+                    .Select(g => new { Status = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                var data = new
+                {
+                    Labels = shipments.Select(s => s.Status).ToArray(),
+                    Values = shipments.Select(s => s.Count).ToArray()
+                };
+
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving monthly report for distributor {DistributorId}", User?.Identity?.Name);
+                return StatusCode(500, "An error occurred while retrieving report data.");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetReports()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    return Unauthorized();
+                }
+
+                var reports = await _context.Reports
+                    .Where(r => r.DistributorId == user.Id)
+                    .Select(r => new
+                    {
+                        r.CompanyName,
+                        r.IssueType,
+                        r.Details,
+                        Date = r.CreatedAt.ToString("yyyy-MM-dd")
+                    })
+                    .ToListAsync();
+
+                return Json(reports);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving reports for distributor {DistributorId}", User?.Identity?.Name);
+                return StatusCode(500, "An error occurred while retrieving reports.");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitReport([FromBody] ReportViewModel model)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    return Json(new { success = false, message = "Unauthorized access." });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return Json(new { success = false, message = "Invalid data provided." });
+                }
+
+                var report = new Report
+                {
+                    CompanyName = model.CompanyName,
+                    IssueType = model.IssueType,
+                    Details = model.Details,
+                    DistributorId = user.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Reports.Add(report);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Report submitted successfully!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error submitting report for distributor {DistributorId}", User?.Identity?.Name);
+                return Json(new { success = false, message = "An error occurred while submitting the report." });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetProducts()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    return Unauthorized();
+                }
+
+                var products = await _context.Products
+                    .Select(p => new { p.Id, p.Name })
+                    .ToListAsync();
+                return Json(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving products for distributor {DistributorId}", User?.Identity?.Name);
+                return StatusCode(500, "An error occurred while retrieving products.");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateShipment([FromBody] ShipmentViewModel model)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null || user.RoleType != "distributor")
+                {
+                    return Json(new { success = false, message = "Unauthorized access." });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return Json(new { success = false, message = "Invalid data provided." });
+                }
+
+                var shipment = new Shipment
+                {
+                    ProductId = model.ProductId,
+                    Destination = model.Destination,
+                   
+                    Status = "Pending",
+                    DistributorId = user.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Shipments.Add(shipment);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Shipment created successfully!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating shipment for distributor {DistributorId}", User?.Identity?.Name);
+                return Json(new { success = false, message = "An error occurred while creating the shipment." });
             }
         }
     }
