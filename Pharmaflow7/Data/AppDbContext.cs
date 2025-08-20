@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pharmaflow7.Models;
@@ -22,6 +22,7 @@ namespace Pharmaflow7.Data
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<VehicleLocation> VehicleLocations { get; set; }
+        public DbSet<EmailOtp> EmailOtps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,17 @@ namespace Pharmaflow7.Data
 
             modelBuilder.Entity<VehicleLocation>()
                 .Property(v => v.Longitude)
+                .HasColumnType("decimal(18,9)")
+                .HasPrecision(18, 9);
+
+            // إعدادات Shipment decimal properties
+            modelBuilder.Entity<Shipment>()
+                .Property(s => s.DestinationLatitude)
+                .HasColumnType("decimal(18,9)")
+                .HasPrecision(18, 9);
+
+            modelBuilder.Entity<Shipment>()
+                .Property(s => s.DestinationLongitude)
                 .HasColumnType("decimal(18,9)")
                 .HasPrecision(18, 9);
 
@@ -117,6 +129,14 @@ namespace Pharmaflow7.Data
                 .WithMany()
                 .HasForeignKey(d => d.DistributorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // EmailOtp configuration
+            modelBuilder.Entity<EmailOtp>()
+                .HasIndex(e => e.Email);
+
+            modelBuilder.Entity<EmailOtp>()
+                .HasIndex(e => new { e.Email, e.OtpCode })
+                .IsUnique();
         }
     }
 }

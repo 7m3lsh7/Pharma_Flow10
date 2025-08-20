@@ -18,14 +18,16 @@ namespace Pharmaflow7.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AuthController> _logger;
         private readonly IEmailService _emailService;
+        private readonly IOtpService _otpService;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, ILogger<AuthController> logger, IEmailService emailService)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, ILogger<AuthController> logger, IEmailService emailService, IOtpService otpService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
             _emailService = emailService;
+            _otpService = otpService;
         }
 
         [HttpGet]
@@ -118,23 +120,19 @@ namespace Pharmaflow7.Controllers
                 }
                 await _userManager.AddToRoleAsync(user, model.RoleType);
 
-                // Generate email confirmation token and send email
+                // Generate and send OTP for email verification
                 try
                 {
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var confirmationLink = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, token = token }, Request.Scheme);
+                    await _otpService.GenerateOtpAsync(user.Email, "EmailVerification");
+                    _logger.LogInformation("📧 تم إرسال رمز التحقق إلى: {Email}", user.Email);
                     
-                    await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
-                    _logger.LogInformation("📧 تم إرسال رابط تأكيد البريد الإلكتروني: {Email}", user.Email);
-                    
-                    TempData["SuccessMessage"] = "Registration successful! Please check your email to confirm your account before logging in.";
-                    return RedirectToAction("EmailConfirmationSent", new { email = user.Email });
+                    TempData["SuccessMessage"] = "Registration successful! Please check your email for the verification code.";
+                    return RedirectToAction("VerifyOtp", new { email = user.Email });
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "❌ فشل في إرسال البريد الإلكتروني: {Email}", user.Email);
-                    // Still show success but with different message
-                    TempData["WarningMessage"] = "Registration successful, but we couldn't send the confirmation email. Please contact support.";
+                    _logger.LogError(ex, "❌ فشل في إرسال رمز التحقق: {Email}", user.Email);
+                    TempData["WarningMessage"] = "Registration successful, but we couldn't send the verification code. Please contact support.";
                     return RedirectToAction("Login");
                 }
             }
@@ -168,14 +166,6 @@ namespace Pharmaflow7.Controllers
                 {
                     _logger.LogInformation("تسجيل دخول ناجح لـ {Email}", model.Email);
                     var user = await _userManager.FindByEmailAsync(model.Email);
-                    
-                    // Update email confirmation timestamp if not set
-                    if (!user.EmailConfirmedAt.HasValue && user.EmailConfirmed)
-                    {
-                        user.EmailConfirmedAt = DateTime.UtcNow;
-                        await _userManager.UpdateAsync(user);
-                    }
-                    
                     return RedirectToDashboard(user.RoleType);
                 }
                 if (result.IsLockedOut)
@@ -189,10 +179,20 @@ namespace Pharmaflow7.Controllers
                     if (user != null && !await _userManager.IsEmailConfirmedAsync(user))
                     {
                         _logger.LogWarning("محاولة تسجيل دخول بدون تأكيد البريد الإلكتروني: {Email}", model.Email);
-                        ModelState.AddModelError(string.Empty, "You must confirm your email before you can log in. Please check your email for the confirmation link.");
-                        ViewBag.ShowResendEmailLink = true;
-                        ViewBag.Email = model.Email;
-                        return View(model);
+                        
+                        // Generate new OTP and redirect to verification
+                        try
+                        {
+                            await _otpService.GenerateOtpAsync(user.Email, "EmailVerification");
+                            TempData["InfoMessage"] = "Please verify your email address first. We've sent a new verification code to your email.";
+                            return RedirectToAction("VerifyOtp", new { email = user.Email });
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to generate OTP for unverified user: {Email}", user.Email);
+                            ModelState.AddModelError(string.Empty, "Your email is not verified. Please contact support.");
+                            return View(model);
+                        }
                     }
                 }
                 else
@@ -251,8 +251,7 @@ namespace Pharmaflow7.Controllers
                     {
                         UserName = email,
                         Email = email,
-                        EmailConfirmed = true, // External providers are pre-confirmed
-                        EmailConfirmedAt = DateTime.UtcNow
+                        EmailConfirmed = true // External providers are pre-confirmed
                     };
                     var createResult = await _userManager.CreateAsync(user);
                     if (createResult.Succeeded)
@@ -373,10 +372,82 @@ namespace Pharmaflow7.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult EmailConfirmationSent(string email)
+        public IActionResult VerifyOtp(string email)
         {
-            ViewBag.Email = email;
-            return View();
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new OtpVerificationViewModel 
+            { 
+                Email = email,
+                CanResend = true,
+                ResendCountdown = 0
+            };
+            
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyOtp(OtpVerificationViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var isValid = await _otpService.ValidateOtpAsync(model.Email, model.OtpCode, "EmailVerification");
+            
+            if (isValid)
+            {
+                // Find user and confirm email
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null)
+                {
+                    user.EmailConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                    
+                    _logger.LogInformation("✅ تم تأكيد البريد الإلكتروني بنجاح: {Email}", model.Email);
+                    TempData["SuccessMessage"] = "Email verified successfully! You can now log in.";
+                    return RedirectToAction("Login");
+                }
+            }
+
+            ModelState.AddModelError("OtpCode", "Invalid or expired verification code. Please try again.");
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendOtp(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return Json(new { success = false, message = "Email address is required." });
+            }
+
+            try
+            {
+                var canResend = await _otpService.ResendOtpAsync(email, "EmailVerification");
+                if (canResend)
+                {
+                    _logger.LogInformation("📧 تم إعادة إرسال رمز التحقق إلى: {Email}", email);
+                    return Json(new { success = true, message = "Verification code has been resent to your email." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Please wait before requesting another code." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ فشل في إعادة إرسال رمز التحقق: {Email}", email);
+                return Json(new { success = false, message = "Failed to resend verification code. Please try again later." });
+            }
         }
 
         [HttpGet]
@@ -399,9 +470,6 @@ namespace Pharmaflow7.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
             {
-                user.EmailConfirmedAt = DateTime.UtcNow;
-                await _userManager.UpdateAsync(user);
-                
                 _logger.LogInformation("✅ تم تأكيد البريد الإلكتروني بنجاح: {Email}", user.Email);
                 TempData["SuccessMessage"] = "Your email has been confirmed successfully! You can now log in.";
                 return RedirectToAction("Login");

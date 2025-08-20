@@ -117,6 +117,7 @@ builder.Services.AddLogging(logging =>
 // Email Service Configuration
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
