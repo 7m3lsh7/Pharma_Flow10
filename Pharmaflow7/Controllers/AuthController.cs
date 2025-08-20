@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Pharmaflow7.Models;
 using System;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Pharmaflow7.Services;
+using System.Text.Encodings.Web;
 
 
 namespace Pharmaflow7.Controllers
@@ -15,13 +17,15 @@ namespace Pharmaflow7.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AuthController> _logger;
+        private readonly IEmailService _emailService;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, ILogger<AuthController> logger)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, ILogger<AuthController> logger, IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -113,8 +117,26 @@ namespace Pharmaflow7.Controllers
                     await _roleManager.CreateAsync(new IdentityRole(model.RoleType));
                 }
                 await _userManager.AddToRoleAsync(user, model.RoleType);
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToDashboard(model.RoleType);
+
+                // Generate email confirmation token and send email
+                try
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, token = token }, Request.Scheme);
+                    
+                    await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
+                    _logger.LogInformation("📧 تم إرسال رابط تأكيد البريد الإلكتروني: {Email}", user.Email);
+                    
+                    TempData["SuccessMessage"] = "Registration successful! Please check your email to confirm your account before logging in.";
+                    return RedirectToAction("EmailConfirmationSent", new { email = user.Email });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ فشل في إرسال البريد الإلكتروني: {Email}", user.Email);
+                    // Still show success but with different message
+                    TempData["WarningMessage"] = "Registration successful, but we couldn't send the confirmation email. Please contact support.";
+                    return RedirectToAction("Login");
+                }
             }
 
             _logger.LogError("❌ فشل إنشاء المستخدم: {Email}", user.Email);
@@ -146,12 +168,32 @@ namespace Pharmaflow7.Controllers
                 {
                     _logger.LogInformation("تسجيل دخول ناجح لـ {Email}", model.Email);
                     var user = await _userManager.FindByEmailAsync(model.Email);
+                    
+                    // Update email confirmation timestamp if not set
+                    if (!user.EmailConfirmedAt.HasValue && user.EmailConfirmed)
+                    {
+                        user.EmailConfirmedAt = DateTime.UtcNow;
+                        await _userManager.UpdateAsync(user);
+                    }
+                    
                     return RedirectToDashboard(user.RoleType);
                 }
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("المستخدم {Email} تم قفله بسبب محاولات فاشلة", model.Email);
                     return RedirectToAction("Lockout");
+                }
+                if (result.IsNotAllowed)
+                {
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    if (user != null && !await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        _logger.LogWarning("محاولة تسجيل دخول بدون تأكيد البريد الإلكتروني: {Email}", model.Email);
+                        ModelState.AddModelError(string.Empty, "You must confirm your email before you can log in. Please check your email for the confirmation link.");
+                        ViewBag.ShowResendEmailLink = true;
+                        ViewBag.Email = model.Email;
+                        return View(model);
+                    }
                 }
                 else
                 {
@@ -208,7 +250,9 @@ namespace Pharmaflow7.Controllers
                     user = new ApplicationUser
                     {
                         UserName = email,
-                        Email = email
+                        Email = email,
+                        EmailConfirmed = true, // External providers are pre-confirmed
+                        EmailConfirmedAt = DateTime.UtcNow
                     };
                     var createResult = await _userManager.CreateAsync(user);
                     if (createResult.Succeeded)
@@ -326,6 +370,94 @@ namespace Pharmaflow7.Controllers
         }
 
         
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult EmailConfirmationSent(string email)
+        {
+            ViewBag.Email = email;
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                _logger.LogWarning("Invalid email confirmation attempt - missing userId or token");
+                return RedirectToAction("Login");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("Email confirmation attempt for non-existent user: {UserId}", userId);
+                return RedirectToAction("Login");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                user.EmailConfirmedAt = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+                
+                _logger.LogInformation("✅ تم تأكيد البريد الإلكتروني بنجاح: {Email}", user.Email);
+                TempData["SuccessMessage"] = "Your email has been confirmed successfully! You can now log in.";
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                _logger.LogError("❌ فشل تأكيد البريد الإلكتروني: {Email}, Errors: {Errors}", 
+                    user.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+                TempData["ErrorMessage"] = "Email confirmation failed. The link may have expired.";
+                return RedirectToAction("Login");
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendEmailConfirmation(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData["ErrorMessage"] = "Email address is required.";
+                return RedirectToAction("Login");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                TempData["SuccessMessage"] = "If an account with that email exists, we've sent a confirmation email.";
+                return RedirectToAction("Login");
+            }
+
+            if (await _userManager.IsEmailConfirmedAsync(user))
+            {
+                TempData["InfoMessage"] = "Your email is already confirmed. You can log in now.";
+                return RedirectToAction("Login");
+            }
+
+            try
+            {
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var confirmationLink = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, token = token }, Request.Scheme);
+                
+                await _emailService.SendEmailConfirmationAsync(user.Email, confirmationLink);
+                _logger.LogInformation("📧 تم إعادة إرسال رابط تأكيد البريد الإلكتروني: {Email}", user.Email);
+                
+                TempData["SuccessMessage"] = "Confirmation email has been resent. Please check your email.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ فشل في إعادة إرسال البريد الإلكتروني: {Email}", user.Email);
+                TempData["ErrorMessage"] = "Failed to send confirmation email. Please try again later.";
+            }
+
+            return RedirectToAction("Login");
+        }
 
         [HttpGet]
         [AllowAnonymous]
