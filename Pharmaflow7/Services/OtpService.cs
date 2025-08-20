@@ -44,9 +44,20 @@ namespace Pharmaflow7.Services
             await _context.SaveChangesAsync();
 
             // Send OTP via email
-            await _emailService.SendOtpEmailAsync(email, otpCode);
+            try
+            {
+                await _emailService.SendOtpEmailAsync(email, otpCode);
+                _logger.LogInformation("OTP generated and sent successfully to {Email} for {Purpose}", email, purpose);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send OTP email to {Email} for {Purpose}. Error: {Error}", email, purpose, ex.Message);
+                // Remove the OTP from database since email failed
+                _context.EmailOtps.Remove(emailOtp);
+                await _context.SaveChangesAsync();
+                throw new InvalidOperationException($"Failed to send OTP email: {ex.Message}", ex);
+            }
 
-            _logger.LogInformation("OTP generated and sent to {Email} for {Purpose}", email, purpose);
             return otpCode;
         }
 
