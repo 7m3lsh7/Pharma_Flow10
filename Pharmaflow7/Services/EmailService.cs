@@ -119,5 +119,45 @@ namespace Pharmaflow7.Services
 
             await SendEmailAsync(email, subject, htmlContent);
         }
+
+        public async Task SendOtpEmailAsync(string email, string otpCode)
+        {
+            var subject = "Email Verification Code - PharmaFlow";
+            var htmlContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                    <div style='background-color: #007bff; color: white; padding: 20px; text-align: center;'>
+                        <h1>PharmaFlow</h1>
+                    </div>
+                    <div style='padding: 20px; background-color: #f8f9fa;'>
+                        <h2>Email Verification Code</h2>
+                        <p>Thank you for registering with PharmaFlow. Please use the following verification code to confirm your email address:</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <div style='background-color: #28a745; color: white; padding: 20px; border-radius: 10px; display: inline-block; font-size: 32px; font-weight: bold; letter-spacing: 5px;'>
+                                {otpCode}
+                            </div>
+                        </div>
+                        
+                        <div class='alert alert-info' style='background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 5px; padding: 15px; margin: 20px 0;'>
+                            <i class='fas fa-info-circle'></i>
+                            <strong>Important:</strong>
+                            <ul style='margin: 10px 0 0 20px;'>
+                                <li>This code will expire in 10 minutes</li>
+                                <li>Enter this code exactly as shown</li>
+                                <li>Do not share this code with anyone</li>
+                            </ul>
+                        </div>
+                        
+                        <p>If you didn't request this verification code, please ignore this email.</p>
+                        
+                        <hr style='margin: 30px 0;'>
+                        <p style='color: #666; font-size: 12px;'>
+                            This is an automated message from PharmaFlow. Please do not reply to this email.
+                        </p>
+                    </div>
+                </div>";
+
+            await SendEmailAsync(email, subject, htmlContent);
+        }
     }
 }

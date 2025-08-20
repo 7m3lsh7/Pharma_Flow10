@@ -13,8 +13,5 @@ namespace Pharmaflow7.Models
         public string? ContactNumber { get; set; } 
         public string? DistributorName { get; set; }  
         public string? WarehouseAddress { get; set; }
-        
-        // Email confirmation timestamp for tracking
-        public DateTime? EmailConfirmedAt { get; set; }
     }
 }

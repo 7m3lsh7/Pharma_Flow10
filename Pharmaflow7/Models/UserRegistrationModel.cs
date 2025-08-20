@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using Pharmaflow7.Attributes;
 
 namespace Pharmaflow7.Models
 {
@@ -6,7 +7,7 @@ namespace Pharmaflow7.Models
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Invalid email address.")]
+        [ValidEmailDomain]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
