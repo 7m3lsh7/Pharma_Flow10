@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pharmaflow7.Models;
@@ -35,6 +35,17 @@ namespace Pharmaflow7.Data
 
             modelBuilder.Entity<VehicleLocation>()
                 .Property(v => v.Longitude)
+                .HasColumnType("decimal(18,9)")
+                .HasPrecision(18, 9);
+
+            // إعدادات Shipment decimal properties
+            modelBuilder.Entity<Shipment>()
+                .Property(s => s.DestinationLatitude)
+                .HasColumnType("decimal(18,9)")
+                .HasPrecision(18, 9);
+
+            modelBuilder.Entity<Shipment>()
+                .Property(s => s.DestinationLongitude)
                 .HasColumnType("decimal(18,9)")
                 .HasPrecision(18, 9);
 

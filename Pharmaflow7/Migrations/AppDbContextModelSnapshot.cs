@@ -186,9 +186,6 @@ namespace Pharmaflow7.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("EmailConfirmedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 

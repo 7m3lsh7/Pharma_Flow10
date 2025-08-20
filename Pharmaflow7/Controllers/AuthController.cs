@@ -168,14 +168,6 @@ namespace Pharmaflow7.Controllers
                 {
                     _logger.LogInformation("تسجيل دخول ناجح لـ {Email}", model.Email);
                     var user = await _userManager.FindByEmailAsync(model.Email);
-                    
-                    // Update email confirmation timestamp if not set
-                    if (!user.EmailConfirmedAt.HasValue && user.EmailConfirmed)
-                    {
-                        user.EmailConfirmedAt = DateTime.UtcNow;
-                        await _userManager.UpdateAsync(user);
-                    }
-                    
                     return RedirectToDashboard(user.RoleType);
                 }
                 if (result.IsLockedOut)
@@ -251,8 +243,7 @@ namespace Pharmaflow7.Controllers
                     {
                         UserName = email,
                         Email = email,
-                        EmailConfirmed = true, // External providers are pre-confirmed
-                        EmailConfirmedAt = DateTime.UtcNow
+                        EmailConfirmed = true // External providers are pre-confirmed
                     };
                     var createResult = await _userManager.CreateAsync(user);
                     if (createResult.Succeeded)
@@ -399,9 +390,6 @@ namespace Pharmaflow7.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
             {
-                user.EmailConfirmedAt = DateTime.UtcNow;
-                await _userManager.UpdateAsync(user);
-                
                 _logger.LogInformation("✅ تم تأكيد البريد الإلكتروني بنجاح: {Email}", user.Email);
                 TempData["SuccessMessage"] = "Your email has been confirmed successfully! You can now log in.";
                 return RedirectToAction("Login");

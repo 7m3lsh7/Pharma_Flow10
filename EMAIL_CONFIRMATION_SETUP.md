@@ -11,8 +11,9 @@ Email confirmation has been successfully implemented in the PharmaFlow applicati
 - Professional HTML email templates for confirmation emails
 
 ### 2. **Database Changes**
-- Added `EmailConfirmedAt` field to `ApplicationUser` model
-- Created migration: `20250820003803_AddEmailConfirmationFields`
+- Uses built-in ASP.NET Identity `EmailConfirmed` field
+- Fixed decimal precision warnings for Shipment location fields
+- No additional database migration needed for email confirmation
 
 ### 3. **Authentication Updates**
 - Identity configured to require email confirmation (`RequireConfirmedEmail = true`)
@@ -49,10 +50,11 @@ Update the `EmailSettings` section in `appsettings.json` with your SMTP credenti
 2. Generate an "App Password" for the application
 3. Use the app password in the `SmtpPassword` field
 
-### 2. **Database Migration**
-Run the database migration to add the new field:
+### 2. **Database Update**
+The email confirmation functionality uses ASP.NET Identity's built-in `EmailConfirmed` field, so no additional migration is needed. However, if you want to fix the decimal precision warnings for location fields, you can create a new migration:
 
 ```bash
+dotnet ef migrations add FixDecimalPrecision
 dotnet ef database update
 ```
 
@@ -116,22 +118,19 @@ If you prefer a different email service, you can:
 - `/Services/IEmailService.cs`
 - `/Services/EmailService.cs`
 - `/Views/Auth/EmailConfirmationSent.cshtml`
-- `/Migrations/20250820003803_AddEmailConfirmationFields.cs`
-- `/Migrations/20250820003803_AddEmailConfirmationFields.Designer.cs`
 
 ### Modified Files
-- `/Models/ApplicationUser.cs` - Added EmailConfirmedAt property
 - `/Controllers/AuthController.cs` - Updated registration, login, and added email confirmation actions
 - `/Views/Auth/Login.cshtml` - Added alert messages and resend functionality
 - `/Program.cs` - Added email service configuration and Identity settings
 - `/appsettings.json` - Added EmailSettings section
-- `/Migrations/AppDbContextModelSnapshot.cs` - Updated model snapshot
+- `/Data/AppDbContext.cs` - Fixed decimal precision for location fields
 
 ## Next Steps
 
 1. **Configure SMTP settings** in appsettings.json
-2. **Run database migration**: `dotnet ef database update`
-3. **Test the complete flow** with a real email address
-4. **Consider upgrading to a professional email service** for production
+2. **Test the complete flow** with a real email address
+3. **Consider upgrading to a professional email service** for production
+4. **Optionally fix decimal precision warnings** by running the FixDecimalPrecision migration
 
 The email confirmation system is now fully implemented and ready for use!
