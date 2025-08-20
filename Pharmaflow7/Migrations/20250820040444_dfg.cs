@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Pharmaflow7.Migrations
 {
     /// <inheritdoc />
-    public partial class fgd : Migration
+    public partial class dfg : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,6 +38,7 @@ namespace Pharmaflow7.Migrations
                     ContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DistributorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WarehouseAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmailConfirmedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -87,6 +88,23 @@ namespace Pharmaflow7.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_loginViewModels", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Reports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IssueType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Details = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DistributorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reports", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -342,6 +360,8 @@ namespace Pharmaflow7.Migrations
                     DistributorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     StoreId = table.Column<int>(type: "int", nullable: true),
                     DriverId = table.Column<int>(type: "int", nullable: true),
+                    DestinationLatitude = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    DestinationLongitude = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     IsAcceptedByDistributor = table.Column<bool>(type: "bit", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -575,6 +595,9 @@ namespace Pharmaflow7.Migrations
 
             migrationBuilder.DropTable(
                 name: "Notifications");
+
+            migrationBuilder.DropTable(
+                name: "Reports");
 
             migrationBuilder.DropTable(
                 name: "userRegistrationModels");
