@@ -22,6 +22,7 @@ namespace Pharmaflow7.Data
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<VehicleLocation> VehicleLocations { get; set; }
+        public DbSet<EmailOtp> EmailOtps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -128,6 +129,14 @@ namespace Pharmaflow7.Data
                 .WithMany()
                 .HasForeignKey(d => d.DistributorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // EmailOtp configuration
+            modelBuilder.Entity<EmailOtp>()
+                .HasIndex(e => e.Email);
+
+            modelBuilder.Entity<EmailOtp>()
+                .HasIndex(e => new { e.Email, e.OtpCode })
+                .IsUnique();
         }
     }
 }
