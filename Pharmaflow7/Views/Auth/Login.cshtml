@@ -1,4 +1,4 @@
-@model LoginViewModel
+﻿@model LoginViewModel
 
 @{
     ViewData["Title"] = "Login";
@@ -26,37 +26,6 @@
 
     <div class="signup-container text-center">
         <h2 class="fw-bold sign">Login</h2>
-        
-        <!-- Alert Messages -->
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @if (TempData["WarningMessage"] != null)
-        {
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>@TempData["WarningMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @if (TempData["InfoMessage"] != null)
-        {
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <i class="fas fa-info-circle me-2"></i>@TempData["InfoMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        
         <form asp-action="Login" method="post">
             <div class="mb-3 position-relative">
                 <input asp-for="Email" class="form-control rounded-pill ps-5 text-black" placeholder="Email Address" required />
@@ -74,19 +43,6 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Sign In</button>
         </form>
-
-        <!-- Resend Email Confirmation Link -->
-        @if (ViewBag.ShowResendEmailLink == true && !string.IsNullOrEmpty(ViewBag.Email?.ToString()))
-        {
-            <div class="mt-3">
-                <form asp-action="ResendEmailConfirmation" method="post" class="d-inline">
-                    <input type="hidden" name="email" value="@ViewBag.Email" />
-                    <button type="submit" class="btn btn-link p-0 text-decoration-none">
-                        <i class="fas fa-paper-plane me-1"></i>Resend confirmation email
-                    </button>
-                </form>
-            </div>
-        }
 
         <div class="or-separator text-black">- OR -</div>
 
