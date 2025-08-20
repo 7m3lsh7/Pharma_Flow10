@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Pharmaflow7.Data;
 using Pharmaflow7.Hubs;
 using Pharmaflow7.Models;
+using Pharmaflow7.Services;
 using System;
 using System.Security.Claims;
 using System.Text.Json;
@@ -40,6 +41,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
+
+    // Email confirmation requirements
+    options.SignIn.RequireConfirmedEmail = true;
+    options.User.RequireUniqueEmail = true;
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -108,6 +113,10 @@ builder.Services.AddLogging(logging =>
     logging.AddConsole();
     logging.AddDebug();
 });
+
+// Email Service Configuration
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
