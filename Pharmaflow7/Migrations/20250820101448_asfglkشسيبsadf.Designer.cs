@@ -12,8 +12,8 @@ using Pharmaflow7.Data;
 namespace Pharmaflow7.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250820040444_dfg")]
-    partial class dfg
+    [Migration("20250820101448_asfglkشسيبsadf")]
+    partial class asfglkشسيبsadf
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -189,9 +189,6 @@ namespace Pharmaflow7.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("EmailConfirmedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
@@ -319,6 +316,48 @@ namespace Pharmaflow7.Migrations
                     b.HasIndex("DistributorId");
 
                     b.ToTable("Drivers");
+                });
+
+            modelBuilder.Entity("Pharmaflow7.Models.EmailOtp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OtpCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("Email", "OtpCode")
+                        .IsUnique();
+
+                    b.ToTable("EmailOtps");
                 });
 
             modelBuilder.Entity("Pharmaflow7.Models.Issue", b =>
@@ -508,10 +547,12 @@ namespace Pharmaflow7.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("DestinationLatitude")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 9)
+                        .HasColumnType("decimal(18,9)");
 
                     b.Property<decimal?>("DestinationLongitude")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 9)
+                        .HasColumnType("decimal(18,9)");
 
                     b.Property<string>("DistributorId")
                         .HasColumnType("nvarchar(450)");

@@ -4,27 +4,14 @@ namespace Pharmaflow7.Models
 {
     public class EmailOtp
     {
-        [Key]
         public int Id { get; set; }
-        
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-        
-        [Required]
-        [StringLength(6, MinimumLength = 6)]
-        public string OtpCode { get; set; } = string.Empty;
-        
-        [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
-        [Required]
+        public string Email { get; set; }
+        public string OtpCode { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime ExpiresAt { get; set; }
-        
-        public bool IsUsed { get; set; } = false;
-        
+        public string Purpose { get; set; }
+        public bool IsUsed { get; set; }
         public DateTime? UsedAt { get; set; }
-        
-        public string Purpose { get; set; } = "EmailVerification"; // EmailVerification, PasswordReset, etc.
     }
+
 }

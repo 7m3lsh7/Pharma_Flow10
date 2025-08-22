@@ -55,6 +55,8 @@ namespace Pharmaflow7.Controllers
 
             if (string.IsNullOrEmpty(model.Email))
                 ModelState.AddModelError("Email", "Email is required.");
+            else if (!model.Email.EndsWith(".com", StringComparison.OrdinalIgnoreCase))
+                ModelState.AddModelError("Email", "Email must end with .com");
             if (string.IsNullOrEmpty(model.Password))
                 ModelState.AddModelError("Password", "Password is required.");
             if (model.Password.Length < 8 || !model.Password.Any(char.IsUpper) || !model.Password.Any(char.IsDigit))
@@ -131,10 +133,11 @@ namespace Pharmaflow7.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "❌ فشل في إرسال رمز التحقق: {Email}", user.Email);
-                    TempData["WarningMessage"] = "Registration successful, but we couldn't send the verification code. Please contact support.";
+                    _logger.LogError("❌ Full error when sending OTP to {Email}: {Exception}", user.Email, ex.ToString());
+                    TempData["WarningMessage"] = $"Registration successful, but OTP failed: {ex.Message}";
                     return RedirectToAction("Login");
                 }
+
             }
 
             _logger.LogError("❌ فشل إنشاء المستخدم: {Email}", user.Email);
@@ -400,21 +403,25 @@ namespace Pharmaflow7.Controllers
             }
 
             var isValid = await _otpService.ValidateOtpAsync(model.Email, model.OtpCode, "EmailVerification");
-            
+
             if (isValid)
             {
-                // Find user and confirm email
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user != null)
                 {
                     user.EmailConfirmed = true;
                     await _userManager.UpdateAsync(user);
-                    
-                    _logger.LogInformation("✅ تم تأكيد البريد الإلكتروني بنجاح: {Email}", model.Email);
-                    TempData["SuccessMessage"] = "Email verified successfully! You can now log in.";
-                    return RedirectToAction("Login");
+
+                    // تسجيل دخول مباشر
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    _logger.LogInformation("✅ تم تأكيد البريد الإلكتروني وتسجيل الدخول: {Email}", model.Email);
+                    TempData["SuccessMessage"] = "Your email has been confirmed and you are now logged in!";
+
+                    return RedirectToDashboard(user.RoleType);
                 }
             }
+
 
             ModelState.AddModelError("OtpCode", "Invalid or expired verification code. Please try again.");
             return View(model);

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Pharmaflow7.Data;
+using Pharmaflow7.Helpers;
 using Pharmaflow7.Hubs;
 using Pharmaflow7.Models;
 using System;
@@ -490,7 +491,8 @@ namespace Pharmaflow7.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning("Invalid model state for AddProduct: {Errors}", string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                    _logger.LogWarning("Invalid model state for AddProduct: {Errors}",
+                        string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                     return BadRequest(ModelState);
                 }
 
@@ -507,12 +509,45 @@ namespace Pharmaflow7.Controllers
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Product {ProductId} added by company {CompanyId}", product.Id, user.Id);
 
-                return Json(new { productId = product.Id });
+                var qrPayload = new QrPayload
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    ProductionDate = product.ProductionDate,
+                    ExpirationDate = product.ExpirationDate,
+                    Description = product.Description
+                };
+
+                string qrData = QrHelper.GenerateQrData(qrPayload);
+
+                // أرسل للـ frontend
+                return Json(new { success = true, productId = product.Id, qrData });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding product for company {CompanyId}", User?.Identity?.Name);
                 return StatusCode(500, new { success = false, message = "An error occurred while adding the product." });
+            }
+        }
+
+        [HttpPost("verify-qr-company")]
+        public IActionResult VerifyQr([FromBody] dynamic body)
+        {
+            try
+            {
+                string base64Data = body.rawData;
+                var payload = QrHelper.DecodeQrData(base64Data);
+
+                var rawData = $"{payload.Id}|{payload.Name}|{payload.ProductionDate:yyyy-MM-dd}|{payload.ExpirationDate:yyyy-MM-dd}|{payload.Description}";
+                var expectedSignature = QrHelper.GenerateSignature(rawData);
+
+                bool isValid = payload.Signature == expectedSignature;
+
+                return Ok(new { isValid });
+            }
+            catch
+            {
+                return BadRequest(new { isValid = false, message = "QR غير صالح" });
             }
         }
 

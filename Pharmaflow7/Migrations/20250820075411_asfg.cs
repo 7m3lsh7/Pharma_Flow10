@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Pharmaflow7.Migrations
 {
     /// <inheritdoc />
-    public partial class dfg : Migration
+    public partial class asfg : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,7 +38,6 @@ namespace Pharmaflow7.Migrations
                     ContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DistributorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WarehouseAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EmailConfirmedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -73,6 +72,25 @@ namespace Pharmaflow7.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_dashboardViewModels", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmailOtps",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    OtpCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Purpose = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false),
+                    UsedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmailOtps", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -360,8 +378,8 @@ namespace Pharmaflow7.Migrations
                     DistributorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     StoreId = table.Column<int>(type: "int", nullable: true),
                     DriverId = table.Column<int>(type: "int", nullable: true),
-                    DestinationLatitude = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    DestinationLongitude = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    DestinationLatitude = table.Column<decimal>(type: "decimal(18,9)", precision: 18, scale: 9, nullable: true),
+                    DestinationLongitude = table.Column<decimal>(type: "decimal(18,9)", precision: 18, scale: 9, nullable: true),
                     IsAcceptedByDistributor = table.Column<bool>(type: "bit", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -501,6 +519,17 @@ namespace Pharmaflow7.Migrations
                 column: "DistributorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EmailOtps_Email",
+                table: "EmailOtps",
+                column: "Email");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmailOtps_Email_OtpCode",
+                table: "EmailOtps",
+                columns: new[] { "Email", "OtpCode" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Issues_CompanyId",
                 table: "Issues",
                 column: "CompanyId");
@@ -586,6 +615,9 @@ namespace Pharmaflow7.Migrations
 
             migrationBuilder.DropTable(
                 name: "dashboardViewModels");
+
+            migrationBuilder.DropTable(
+                name: "EmailOtps");
 
             migrationBuilder.DropTable(
                 name: "Issues");

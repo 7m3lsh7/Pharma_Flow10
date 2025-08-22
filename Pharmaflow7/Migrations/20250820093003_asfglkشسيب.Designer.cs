@@ -12,8 +12,8 @@ using Pharmaflow7.Data;
 namespace Pharmaflow7.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250820061142_asdgf")]
-    partial class asdgf
+    [Migration("20250820093003_asfglkشسيب")]
+    partial class asfglkشسيب
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -341,8 +341,7 @@ namespace Pharmaflow7.Migrations
 
                     b.Property<string>("OtpCode")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
