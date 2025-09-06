@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
             --primary: #042557;
@@ -257,12 +258,18 @@
             <button class="cta-btn" onclick="scrollToFeatures()">Get Started</button>
            
         </section>
-        <button class="cta-btn" onclick="startQrScan()">Scan QR Code</button>
-        <input type="file" id="qrFileInput" accept="image/*">
-        <button class="cta-btn" onclick="uploadQrImage()">Upload & Verify QR</button>
 
-        <div id="qr-reader" style="margin-top:1rem;"></div>
-        <div id="qr-result" style="margin-top:1rem; font-weight:bold;"></div>
+
+        <section >
+            <h1>PharmaFlow QR Verification</h1>
+
+            <button onclick="startQrScan()">Scan QR Code</button>
+            <input type="file" id="qrFileInput" accept="image/*">
+            <button onclick="uploadQrImage()">Upload QR Image</button>
+
+            <div id="qr-reader" style="width:300px; margin-top:1rem;"></div>
+            <div id="qr-result" style="margin-top:1rem; font-weight:bold;"></div>
+        </section>
 
         <!-- About Project -->
         <section class="about-project">
@@ -457,11 +464,46 @@
             );
         }
 
-             function startQrScan() {
+        new Typed("#typed", {
+            strings: ["Scan. Verify. Trust.", "Blockchain-Powered Safety.", "Say No to Fake Medicine."],
+            typeSpeed: 60,
+            backSpeed: 30,
+            backDelay: 2000,
+            loop: true
+        });
+
+             async function verifyQr(rawData) {
+            try {
+                const res = await fetch('/api/qr/verify-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rawData })
+                });
+                const result = await res.json();
+                const qrResult = document.getElementById("qr-result");
+                if(result.success && result.isValid){
+                    qrResult.innerHTML = `
+                        <p style="color:green;">✅ المنتج أصلي</p>
+                        <p><strong>اسم المنتج:</strong> ${result.product.name}</p>
+                        <p><strong>تاريخ الإنتاج:</strong> ${result.product.productionDate}</p>
+                        <p><strong>تاريخ الانتهاء:</strong> ${result.product.expirationDate}</p>
+                        <p><strong>الوصف:</strong> ${result.product.description}</p>
+                    `;
+                } else {
+                    qrResult.innerHTML = '<p style="color:red;">❌ المنتج غير أصلي</p>';
+                }
+            } catch(err){
+                console.error(err);
+                document.getElementById("qr-result").innerHTML = '<p style="color:red;">⚠️ خطأ في السيرفر</p>';
+            }
+        }
+
+        // QR Scanner
+        function startQrScan(){
             const html5QrCode = new Html5Qrcode("qr-reader");
             html5QrCode.start(
                 { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 350, height: 350 } },
+                { fps: 10, qrbox: 250 },
                 qrMessage => {
                     verifyQr(qrMessage);
                     html5QrCode.stop();
@@ -469,36 +511,16 @@
             );
         }
 
-        function uploadQrImage() {
-            const file = document.getElementById("qrFileInput").files[0];
-            if (!file) return alert("Select a QR image first!");
+        // Upload QR Image (optional)
+        async function uploadQrImage(){
+            const fileInput = document.getElementById("qrFileInput");
+            if(!fileInput.files[0]) return alert("Select an image first");
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const base64Data = e.target.result.split(',')[1]; // remove data:image/...
-                    verifyQr(atob(base64Data)); // convert Base64 to string
-                } catch (err) {
-                    alert("Error reading QR image: " + err.message);
-                }
-            };
-            reader.readAsDataURL(file);
+            // Send image to server if you implement ZXing image decoding in C#.
+            alert("Image upload not implemented yet. Use scanner for now.");
         }
 
-        function verifyQr(rawData) {
-            fetch('/api/qr/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ rawData })
-            })
-            .then(res => res.json())
-            .then(result => {
-                const qrResult = document.getElementById("qr-result");
-                if(result.success && result.isValid) qrResult.innerHTML = '<p style="color:green;">✅ المنتج أصلي</p>';
-                else qrResult.innerHTML = '<p style="color:red;">❌ المنتج غير أصلي</p>';
-            })
-            .catch(err => console.error(err));
-        }
+
 
     </script>
 </body>

@@ -473,6 +473,7 @@ namespace Pharmaflow7.Controllers
             }
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProduct([FromBody] Product model)
@@ -481,20 +482,13 @@ namespace Pharmaflow7.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null || user.RoleType != "company")
-                {
-                    _logger.LogWarning("Unauthorized access attempt to AddProduct.");
-                    return RedirectToAction("Login", "Auth");
-                }
+                    return Unauthorized();
 
                 ModelState.Remove("CompanyId");
                 ModelState.Remove("Company");
 
                 if (!ModelState.IsValid)
-                {
-                    _logger.LogWarning("Invalid model state for AddProduct: {Errors}",
-                        string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                     return BadRequest(ModelState);
-                }
 
                 var product = new Product
                 {
@@ -505,10 +499,6 @@ namespace Pharmaflow7.Controllers
                     CompanyId = user.Id
                 };
 
-                _context.Products.Add(product);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Product {ProductId} added by company {CompanyId}", product.Id, user.Id);
-
                 var qrPayload = new QrPayload
                 {
                     Id = product.Id,
@@ -518,38 +508,20 @@ namespace Pharmaflow7.Controllers
                     Description = product.Description
                 };
 
-                string qrData = QrHelper.GenerateQrData(qrPayload);
+                product.Signature = QrHelper.GenerateQrData(qrPayload);
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
 
-                // أرسل للـ frontend
-                return Json(new { success = true, productId = product.Id, qrData });
+                return Json(new { success = true, productId = product.Id, qrData = product.Signature });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding product for company {CompanyId}", User?.Identity?.Name);
-                return StatusCode(500, new { success = false, message = "An error occurred while adding the product." });
+                _logger.LogError(ex, "Error adding product");
+                return StatusCode(500, new { success = false, message = "Error adding product" });
             }
         }
 
-        [HttpPost("verify-qr-company")]
-        public IActionResult VerifyQr([FromBody] dynamic body)
-        {
-            try
-            {
-                string base64Data = body.rawData;
-                var payload = QrHelper.DecodeQrData(base64Data);
 
-                var rawData = $"{payload.Id}|{payload.Name}|{payload.ProductionDate:yyyy-MM-dd}|{payload.ExpirationDate:yyyy-MM-dd}|{payload.Description}";
-                var expectedSignature = QrHelper.GenerateSignature(rawData);
-
-                bool isValid = payload.Signature == expectedSignature;
-
-                return Ok(new { isValid });
-            }
-            catch
-            {
-                return BadRequest(new { isValid = false, message = "QR غير صالح" });
-            }
-        }
 
         [HttpGet]
         public async Task<IActionResult> Reports()

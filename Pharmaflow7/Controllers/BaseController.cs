@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Pharmaflow7.Models;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 public class BaseController : Controller
 {
@@ -15,51 +16,42 @@ public class BaseController : Controller
         _logger = logger;
     }
 
-    public override void OnActionExecuting(ActionExecutingContext context)
+    public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         if (User.Identity.IsAuthenticated)
         {
             try
             {
-                var user = _userManager.GetUserAsync(User).GetAwaiter().GetResult();
+                var user = await _userManager.GetUserAsync(User);
                 if (user != null)
                 {
-                    _logger.LogInformation("User {UserId} authenticated with RoleType: {RoleType}", user.Id, user.RoleType);
                     ViewData["RoleType"] = user.RoleType;
-                    if (user.RoleType == "company")
+                    ViewData["UserName"] = user.RoleType switch
                     {
-                        ViewData["UserName"] = user.CompanyName;
-                    }
-                    else if (user.RoleType == "distributor")
-                    {
-                        ViewData["UserName"] = user.DistributorName;
-                    }
-                    else
-                    {
-                        ViewData["UserName"] = user.UserName;
-                    }
+                        "company" => user.CompanyName,
+                        "distributor" => user.DistributorName,
+                        _ => user.UserName
+                    };
                 }
                 else
                 {
-                    _logger.LogWarning("User is authenticated but not found in database. ClaimsPrincipal: {UserName}", User.Identity.Name);
                     ViewData["RoleType"] = null;
                     ViewData["UserName"] = User.Identity.Name ?? "Guest";
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                _logger.LogError(ex, "Error retrieving user data in BaseController for {UserName}", User.Identity.Name);
                 ViewData["RoleType"] = null;
                 ViewData["UserName"] = User.Identity.Name ?? "Guest";
             }
         }
         else
         {
-            _logger.LogWarning("Unauthenticated access attempt to {Action} in {Controller}", context.ActionDescriptor.DisplayName, context.Controller);
             ViewData["RoleType"] = null;
             ViewData["UserName"] = "Guest";
         }
 
-        base.OnActionExecuting(context);
+        await next();
     }
+
 }

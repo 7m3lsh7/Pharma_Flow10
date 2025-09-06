@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,10 +13,10 @@ namespace Pharmaflow7.Controllers
         public HomeController(UserManager<ApplicationUser> userManager, ILogger<HomeController> logger) : base(userManager, logger) { }
 
 
-
+        [AllowAnonymous]
         public IActionResult Index()
         {
-
+            // ·Ê «·„” Œœ„ „”Ã· œŒÊ·° „„ﬂ‰  ⁄„· redirect
             if (User.Identity.IsAuthenticated)
             {
                 var roleType = ViewData["RoleType"]?.ToString()?.ToLower();
@@ -33,9 +34,11 @@ namespace Pharmaflow7.Controllers
                     _ => "Home"
                 });
             }
-            return View();
 
+            // ·Ê „‘ „”Ã· œŒÊ·° «·’›Õ… Â ŸÂ— ⁄«œÌ
+            return View();
         }
+
 
         public IActionResult About()
         {

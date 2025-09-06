@@ -1,0 +1,81 @@
+﻿<h1>Scan Product QR</h1>
+
+<input type="file" id="qrFile" accept="image/*" />
+<button id="verifyFileBtn">Verify Image</button>
+
+
+<video id="video" width="300" height="200" style="border:1px solid black;"></video>
+<button id="startCameraBtn">Start Camera Scan</button>
+
+<h3 id="result"></h3>
+
+<script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+<script>
+    const resultEl = document.getElementById('result');
+
+    // رفع صورة وتحليلها
+       document.getElementById('verifyFileBtn').addEventListener('click', async () => {
+        const fileInput = document.getElementById('qrFile');
+        if(fileInput.files.length === 0) return alert("Select an image!");
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const response = await fetch('/Verify/ScanFile', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById('result').innerText = result.success ? "Product is genuine ✅" : "Product is fake ❌";
+    });
+
+    // الكاميرا والمسح المباشر
+    document.getElementById('startCameraBtn').addEventListener('click', async () => {
+        const video = document.getElementById('video');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }});
+        video.srcObject = stream;
+        video.play();
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function scanFrame() {
+            if(video.readyState === video.HAVE_ENOUGH_DATA){
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video,0,0,canvas.width,canvas.height);
+                const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height);
+                if(code){
+                    verifyQrJson(code.data);
+                    stream.getTracks().forEach(track => track.stop());
+                    return;
+                }
+            }
+            requestAnimationFrame(scanFrame);
+        }
+        scanFrame();
+    });
+
+    function verifyQrJson(qrData){
+        if(!qrData){
+            resultEl.innerText = "No QR data detected!";
+            return;
+        }
+
+        fetch('/Verify/Scan', {
+            method:'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ qrData })
+        })
+        .then(r=>r.json())
+        .then(data=>{
+            resultEl.innerText = data.success ? "Product is genuine ✅" : "Product is fake ❌";
+        })
+        .catch(e=>{
+            resultEl.innerText = "Error verifying QR";
+            console.error(e);
+        });
+    }
+</script>

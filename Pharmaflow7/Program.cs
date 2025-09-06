@@ -18,10 +18,12 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// DB Context
 var encryptedConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(encryptedConnection));
 
+// JSON options
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -29,7 +31,7 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
-// Identity Configuration
+// Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -37,19 +39,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
-
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
-
-    // Email confirmation requirements
     options.SignIn.RequireConfirmedEmail = true;
     options.User.RequireUniqueEmail = true;
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Authentication with Google
+// Google Auth
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
@@ -57,11 +56,12 @@ builder.Services.AddAuthentication()
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     });
 
+// Cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax; // Lax عشان SignalR و AJAX
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // مؤقتًا HTTP أثناء dev
+    options.Cookie.SameSite = SameSiteMode.Lax;
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.LoginPath = "/Auth/Login";
     options.LogoutPath = "/Auth/Logout";
@@ -75,7 +75,7 @@ builder.Services.ConfigureApplicationCookie(options =>
         try
         {
             var user = await userManager.GetUserAsync(context.Principal);
-            if (user != null && user.RoleType != null)
+            if (user != null && !string.IsNullOrEmpty(user.RoleType))
             {
                 var claims = new List<Claim>
                 {
@@ -85,14 +85,10 @@ builder.Services.ConfigureApplicationCookie(options =>
                 context.Principal.AddIdentity(new ClaimsIdentity(claims));
                 logger.LogInformation("Signing in user {UserId} with RoleType {RoleType}", user.Id, user.RoleType);
             }
-            else
-            {
-                logger.LogWarning("User not found or RoleType is null during sign-in for {UserName}", context.Principal.Identity.Name);
-            }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error during OnSigningIn for {UserName}", context.Principal.Identity.Name);
+            logger.LogError(ex, "Error during OnSigningIn for {UserName}", context.Principal?.Identity?.Name);
         }
     };
 });
@@ -107,19 +103,11 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// Logging
-builder.Services.AddLogging(logging =>
-{
-    logging.AddConsole();
-    logging.AddDebug();
-});
-
-// Email Service Configuration
+// Services
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 
-builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -133,26 +121,30 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Error seeding roles during application startup.");
+        Console.WriteLine("Error seeding roles: " + ex);
     }
 }
 
-// Middleware Pipeline
-if (!app.Environment.IsDevelopment())
+// Middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// مؤقتًا لتعطيل HTTPS Redirect أثناء التطوير
+// app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 app.UseCookiePolicy();
 app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-// Removed UseMiddleware<AuthenticationMiddleware> to avoid interference
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -160,14 +152,12 @@ app.MapHub<TrackingHub>("/trackingHub");
 
 app.Run();
 
-// Role Seeder Class
 public static class RoleSeeder
 {
     public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         string[] roles = { "driver", "company", "distributor" };
-
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
