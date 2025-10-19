@@ -1,0 +1,81 @@
+@{
+    ViewData["Title"] = "Company Created Successfully";
+    var email = TempData["CompanyEmail"]?.ToString();
+    var password = TempData["CompanyPassword"]?.ToString();
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+
+                    <h2 class="mb-3">Company Account Created!</h2>
+                    <p class="text-muted mb-4">The company account has been successfully created. Please save the credentials below and send them to the company.</p>
+
+                    <div class="alert alert-warning text-start">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> These credentials will only be shown once. Make sure to save them securely.
+                    </div>
+
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-start d-block">Email</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="@email" id="emailField" readonly />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('emailField')">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label fw-semibold text-start d-block">Password</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="@password" id="passwordField" readonly />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('passwordField')">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a asp-action="CreateCompany" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i>Create Another Company
+                        </a>
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-house me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(fieldId) {
+            var field = document.getElementById(fieldId);
+            field.select();
+            field.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            
+            // Show feedback
+            var button = event.target.closest('button');
+            var originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-check"></i>';
+            setTimeout(function() {
+                button.innerHTML = originalHTML;
+            }, 2000);
+        }
+    </script>
+}
