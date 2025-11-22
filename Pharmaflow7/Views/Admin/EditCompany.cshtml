@@ -1,0 +1,79 @@
+@model PharmaFlow.Models.ViewModels.EditCompanyViewModel
+@{
+    ViewData["Title"] = "Edit Company";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil me-2"></i>Edit Company Account
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="EditCompany" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label asp-for="CompanyName" class="form-label fw-semibold"></label>
+                                <input asp-for="CompanyName" class="form-control form-control-lg" />
+                                <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="Email" class="form-label fw-semibold"></label>
+                                <input asp-for="Email" class="form-control form-control-lg" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="FullName" class="form-label fw-semibold"></label>
+                                <input asp-for="FullName" class="form-control form-control-lg" />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+                                <input asp-for="PhoneNumber" class="form-control form-control-lg" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsActive" class="form-check-label"></label>
+                                </div>
+                                <small class="text-muted">Inactive accounts cannot log in</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsVerified" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsVerified" class="form-check-label"></label>
+                                </div>
+                                <small class="text-muted">Verified by administrator</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Save Changes
+                            </button>
+                            <a asp-action="Companies" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
