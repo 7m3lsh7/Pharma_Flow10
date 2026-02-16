@@ -7,11 +7,21 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>شحنات السائق</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="~/css/driver_shipments.css">
+<style>
+    .no-shipments { font-size: 1.2rem; color: #777; margin-top: 1rem; }
+    .loading-overlay { 
+        position: fixed; top:0; left:0; width:100%; height:100%; 
+        background: rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:9999;
+    }
+    .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #007bff; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+    keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .message { position: fixed; top: 10px; right: 10px; padding: 10px 20px; border-radius: 5px; color: white; z-index: 10000; }
+    .message.success { background: #28a745; }
+    .message.error { background: #dc3545; }
+</style>
 
 <div class="container">
     <h1><i class="fas fa-truck"></i> شحنات السائق</h1>
@@ -38,16 +48,16 @@
                     <tr>
                         <td>@shipment.ProductName</td>
                         <td>@shipment.Destination</td>
-                        <td>@shipment.Status</td>
+                        <td id="status_@shipment.Id">@shipment.Status</td>
                         <td>@shipment.StoreAddress</td>
                         <td>
                             <button onclick="updateLocation(@shipment.Id)" class="btn btn-primary">
                                 <i class="fas fa-map-marker-alt"></i> تحديث الموقع
                             </button>
-                            <button onclick="startTrip(@shipment.Id)" class="btn btn-success" id="startTrip_@shipment.Id" @(shipment.Status == "In Transit" || shipment.Status == "Delivered" ? "disabled" : "")>
+                            <button onclick="startTrip(@shipment.Id)" class="btn btn-success" id="startTrip_@shipment.Id" @(shipment.Status=="In Transit" || shipment.Status=="Delivered" ? "disabled" : "")>
                                 <i class="fas fa-play"></i> بدء الرحلة
                             </button>
-                            <button onclick="endTrip(@shipment.Id)" class="btn btn-danger" id="endTrip_@shipment.Id" @(shipment.Status != "In Transit" ? "disabled" : "")>
+                            <button onclick="endTrip(@shipment.Id)" class="btn btn-danger" id="endTrip_@shipment.Id" @(shipment.Status!="In Transit" ? "disabled" : "")>
                                 <i class="fas fa-stop"></i> إنهاء الرحلة
                             </button>
                         </td>
@@ -66,8 +76,7 @@
     }
 </div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loading" style="display: none;">
+<div class="loading-overlay" id="loading" style="display:none;">
     <div class="spinner"></div>
 </div>
 
@@ -77,172 +86,71 @@
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
     <script>
-        // إعداد SignalR
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/trackingHub", { withCredentials: true })
+            .withUrl("/trackingHub")
             .build();
 
-        // خرائط وماركرز وخطوط سير لكل شحنة
-        var maps = {};
-        var truckMarkers = {};
-        var routes = {};
+        var maps = {}, truckMarkers = {}, routes = {};
 
-        @foreach (var shipment in Model)
-        {
-                if (shipment.DestinationLatitude.HasValue && shipment.DestinationLongitude.HasValue)
-                {
-                        var latitude = shipment.Latitude.HasValue ? shipment.Latitude.Value : 30.0444;
-                        var longitude = shipment.Longitude.HasValue ? shipment.Longitude.Value : 31.2357;
-                        <text>
-                            // إعداد الخريطة لكل شحنة
-                            maps[@shipment.Id] = L.map('map_@shipment.Id').setView([@latitude, @longitude], 13);
-                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                attribution: '© OpenStreetMap contributors'
-                            }).addTo(maps[@shipment.Id]);
-
-                            // إضافة ماركر لموقع السائق
-                            truckMarkers[@shipment.Id] = L.marker([@latitude, @longitude])
-                                .addTo(maps[@shipment.Id])
-                                .bindPopup(`شحنة: @shipment.Id<br>الحالة: @shipment.Status`);
-
-                            // إضافة خط سير
-                            routes[@shipment.Id] = L.Routing.control({
-                                waypoints: [
-                                    L.latLng(@latitude, @longitude),
-                                    L.latLng(@shipment.DestinationLatitude.Value, @shipment.DestinationLongitude.Value)
-                                ],
-                                routeWhileDragging: false,
-                                lineOptions: { styles: [{ color: 'blue', weight: 5 }] }
-                            }).addTo(maps[@shipment.Id]);
-                        </text>
-                }
+        @foreach(var shipment in Model){
+            if(shipment.DestinationLatitude.HasValue && shipment.DestinationLongitude.HasValue){
+                var lat = shipment.Latitude ?? 30.0444;
+                var lng = shipment.Longitude ?? 31.2357;
+                <text>
+                maps[@shipment.Id] = L.map('map_@shipment.Id').setView([@lat,@lng], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap contributors' }).addTo(maps[@shipment.Id]);
+                truckMarkers[@shipment.Id] = L.marker([@lat,@lng]).addTo(maps[@shipment.Id]).bindPopup("شحنة: @shipment.Id<br>الحالة: @shipment.Status");
+                routes[@shipment.Id] = L.Routing.control({
+                    waypoints: [ L.latLng(@lat,@lng), L.latLng(@shipment.DestinationLatitude.Value,@shipment.DestinationLongitude.Value) ],
+                    routeWhileDragging:false,
+                    lineOptions:{styles:[{color:'blue', weight:5}]}
+                }).addTo(maps[@shipment.Id]);
+                </text>
+            }
         }
 
-        // استقبال تحديثات الموقع
         connection.on("ReceiveLocationUpdate", (shipmentId, latitude, longitude, status) => {
-            console.log(`Received location update for shipment ${shipmentId}: (${latitude}, ${longitude})`);
-            if (truckMarkers[shipmentId]) {
+            if(truckMarkers[shipmentId]){
                 truckMarkers[shipmentId].setLatLng([latitude, longitude]);
                 truckMarkers[shipmentId].setPopupContent(`شحنة: ${shipmentId}<br>الحالة: ${status}`);
-                routes[shipmentId].spliceWaypoints(0, 1, L.latLng(latitude, longitude));
-                if (status === "In Transit") {
-                    document.getElementById(`startTrip_${shipmentId}`).disabled = true;
-                    document.getElementById(`endTrip_${shipmentId}`).disabled = false;
-                } else if (status === "Delivered") {
-                    document.getElementById(`endTrip_${shipmentId}`).disabled = true;
-                }
+                routes[shipmentId].spliceWaypoints(0,1,L.latLng(latitude, longitude));
+                document.getElementById(`status_${shipmentId}`).innerText = status;
             }
         });
 
-        // استقبال إشعارات بدء الرحلة
-        connection.on("TripStarted", (shipmentId, status) => {
-            showMessage(`تم بدء الرحلة للشحنة ${shipmentId}!`, 'success');
+        connection.on("TripStarted", (shipmentId, status)=>{
+            document.getElementById(`startTrip_${shipmentId}`).disabled = true;
+            document.getElementById(`endTrip_${shipmentId}`).disabled = false;
+            document.getElementById(`status_${shipmentId}`).innerText = status;
+            showMessage(`تم بدء الرحلة للشحنة ${shipmentId}!`,'success');
         });
 
-        // استقبال إشعارات إنهاء الرحلة
-        connection.on("TripEnded", (shipmentId, status) => {
-            showMessage(`تم إنهاء الرحلة للشحنة ${shipmentId}!`, 'success');
+        connection.on("TripEnded", (shipmentId, status)=>{
+            document.getElementById(`endTrip_${shipmentId}`).disabled = true;
+            document.getElementById(`status_${shipmentId}`).innerText = status;
+            showMessage(`تم إنهاء الرحلة للشحنة ${shipmentId}!`,'success');
         });
 
-        // بدء اتصال SignalR
-        connection.start().catch(err => {
-            console.error("SignalR Connection Error: ", err.toString());
-            showMessage('فشل الاتصال بـ SignalR. يرجى إعادة تحميل الصفحة.', 'error');
-        });
+        connection.start().catch(err=>console.error(err));
 
-        // دالة تحديث الموقع
-        function updateLocation(shipmentId) {
-            if (!shipmentId) {
-                console.error('Shipment ID is undefined or null');
-                showMessage('رقم الشحنة غير صالح.', 'error');
-                return;
-            }
+        function showMessage(msg,type){
+            const div = document.createElement('div');
+            div.className=`message ${type}`;
+            div.innerHTML=`<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+            document.body.appendChild(div);
+            setTimeout(()=>div.remove(),5000);
+        }
 
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        const latitude = position.coords.latitude;
-                        const longitude = position.coords.longitude;
-
-                        if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-                            console.error(`Invalid coordinates: Latitude=${latitude}, Longitude=${longitude}`);
-                            showMessage('الإحداثيات غير صالحة. يرجى التأكد من الموقع.', 'error');
-                            return;
-                        }
-
-                        console.log(`Sending location for shipment ${shipmentId}: (${latitude}, ${longitude})`);
-                        document.getElementById('loading').style.display = 'flex';
-
-                        fetch('/Driver/UpdateVehicleLocation', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                            },
-                            body: `shipmentId=${encodeURIComponent(shipmentId)}&latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}`
-                        })
-                        .then(response => {
-                            console.log('Response Status:', response.status);
-                            document.getElementById('loading').style.display = 'none';
-                            if (!response.ok) {
-                                return response.text().then(text => {
-                                    throw new Error(`HTTP error! Status: ${response.status}, Response: ${text}`);
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                showMessage(data.message, 'success');
-                            } else {
-                                showMessage(data.message, 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error updating location:', error);
-                            showMessage(`حدث خطأ أثناء تحديث الموقع: ${error.message}`, 'error');
-                        });
-                    },
-                    function (error) {
-                        console.error('Geolocation error:', error);
-                        document.getElementById('loading').style.display = 'none';
-                        showMessage('غير قادر على جلب الموقع. من فضلك، قم بتفعيل إذن الموقع.', 'error');
-                    }
-                );
-            } else {
-                console.error('Geolocation is not supported by this browser.');
-                showMessage('المتصفح لا يدعم خاصية تحديد الموقع.', 'error');
+        function updateLocation(shipmentId){
+            if(navigator.geolocation){
+                navigator.geolocation.getCurrentPosition(pos=>{
+                    connection.invoke("UpdateLocation", shipmentId, pos.coords.latitude, pos.coords.longitude)
+                    .catch(err=>console.error(err));
+                }, err=>console.error(err));
             }
         }
 
-        // دالة بدء الرحلة
-        function startTrip(shipmentId) {
-            connection.invoke("StartTrip", shipmentId)
-                .catch(err => {
-                    console.error('Error starting trip:', err);
-                    showMessage('حدث خطأ أثناء بدء الرحلة.', 'error');
-                });
-        }
-
-        // دالة إنهاء الرحلة
-        function endTrip(shipmentId) {
-            connection.invoke("EndTrip", shipmentId)
-                .catch(err => {
-                    console.error('Error ending trip:', err);
-                    showMessage('حدث خطأ أثناء إنهاء الرحلة.', 'error');
-                });
-        }
-
-        // دالة عرض الرسائل
-        function showMessage(message, type) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                ${message}
-            `;
-            document.body.appendChild(messageDiv);
-            setTimeout(() => messageDiv.remove(), 5000);
-        }
+        function startTrip(shipmentId){ connection.invoke("StartTrip", shipmentId).catch(err=>console.error(err)); }
+        function endTrip(shipmentId){ connection.invoke("EndTrip", shipmentId).catch(err=>console.error(err)); }
     </script>
 }

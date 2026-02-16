@@ -113,14 +113,16 @@ namespace Pharmaflow7.Controllers
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
+                if (result.Succeeded)
             {
                 _logger.LogInformation("✅ تم إنشاء المستخدم بنجاح: {Email}", user.Email);
                 if (!await _roleManager.RoleExistsAsync(model.RoleType))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(model.RoleType));
+                    // Ensure role names are lowercase
+                    var roleName = model.RoleType.ToLowerInvariant();
+                    await _roleManager.CreateAsync(new IdentityRole(roleName));
                 }
-                await _userManager.AddToRoleAsync(user, model.RoleType);
+                await _userManager.AddToRoleAsync(user, model.RoleType.ToLowerInvariant());
 
                 // Generate and send OTP for email verification
                 try
@@ -305,8 +307,7 @@ namespace Pharmaflow7.Controllers
             {
                 return RedirectToAction("Login");
             }
-
-            user.RoleType = model.RoleType;
+            user.RoleType = model.RoleType.ToLower();
             user.FullName = model.FullName;
             user.Address = model.Address;
             user.CompanyName = model.CompanyName;
@@ -336,15 +337,15 @@ namespace Pharmaflow7.Controllers
 
         private IActionResult RedirectToDashboard(string roleType)
         {
-            string roleTypeLower = roleType?.ToLower() ?? "home";
-            _logger.LogInformation("Redirecting to dashboard for role: {RoleType}", roleTypeLower);
-            return RedirectToAction(roleTypeLower switch
+            roleType = roleType?.ToLower() ?? "home";
+            _logger.LogInformation("Redirecting to dashboard for role: {RoleType}", roleType);
+            return RedirectToAction(roleType switch
             {
                 "driver" => "DriverShipments",
                 "company" => "CompanyDashboard",
                 "distributor" => "Dashboard",
                 _ => "Index"
-            }, roleTypeLower switch
+            }, roleType switch
             {
                 "driver" => "Driver",
                 "company" => "Company",
@@ -530,7 +531,7 @@ namespace Pharmaflow7.Controllers
                 _logger.LogError(ex, "❌ فشل في إعادة إرسال البريد الإلكتروني: {Email}", user.Email);
                 TempData["ErrorMessage"] = "Failed to send confirmation email. Please try again later.";
             }
-
+                
             return RedirectToAction("Login");
         }
 

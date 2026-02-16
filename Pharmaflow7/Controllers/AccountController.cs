@@ -1,105 +1,187 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PharmaFlow.Models.ViewModels;
+using Microsoft.Extensions.Logging;
 using Pharmaflow7.Models;
+using VM = Pharmaflow7.Models.ViewModels;
+using Pharmaflow7.Services;
 
-namespace PharmaFlow.Controllers
+namespace Pharmaflow7.Controllers
 {
+    [AllowAnonymous]
     public class AccountController : Controller
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<AccountController> _logger;
+        private readonly IEmailService _emailService;
 
         public AccountController(
-            SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
-            ILogger<AccountController> logger)
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<AccountController> logger,
+            IEmailService emailService)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
+            _signInManager = signInManager;
             _logger = logger;
+            _emailService = emailService;
         }
 
-        // GET: Account/Login
-        [AllowAnonymous]
-        public IActionResult Login(string? returnUrl = null)
+        [HttpGet]
+        public IActionResult Register()
         {
-            ViewData["ReturnUrl"] = returnUrl;
+            return View(new VM.RegisterViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(VM.RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var existing = await _userManager.FindByEmailAsync(model.Email);
+            if (existing != null)
+            {
+                ModelState.AddModelError(string.Empty, "Email is already registered.");
+                return View(model);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName,
+                CompanyName = model.CompanyName,
+                ContactNumber = model.ContactNumber,
+                IsActive = true,
+                CreatedDate = DateTime.UtcNow,
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                foreach (var e in result.Errors)
+                    ModelState.AddModelError(string.Empty, e.Description);
+                return View(model);
+            }
+
+            // Assign role
+            var role = NormalizeRole(model.Role);
+            if (!string.IsNullOrEmpty(role))
+            {
+                if (!await _userManager.IsInRoleAsync(user, role))
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                }
+            }
+
+            _logger.LogInformation("User created a new account with email {Email}.", user.Email);
+
+            // Generate email confirmation token
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code }, protocol: Request.Scheme);
+
+            // Send email (implements secure email sending via IEmailService)
+            await _emailService.SendEmailAsync(user.Email, "Confirm your email",
+                $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
+
+            return RedirectToAction("RegisterConfirmation", new { email = user.Email });
+        }
+
+        [HttpGet]
+        public IActionResult RegisterConfirmation(string email)
+        {
+            ViewData["Email"] = email;
             return View();
         }
 
-        // POST: Account/Login
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound($"Unable to load user with ID '{userId}'.");
+
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            if (!result.Succeeded)
+            {
+                return View("Error");
+            }
+
+            return View("ConfirmEmail");
+        }
+
+        [HttpGet]
+        public IActionResult Login(string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View(new VM.LoginViewModel());
+        }
+
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        public async Task<IActionResult> Login(VM.LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return View(model);
             }
 
-            // Check if user is active
             if (!user.IsActive)
             {
-                ModelState.AddModelError(string.Empty, "Your account has been deactivated. Please contact the administrator.");
+                ModelState.AddModelError(string.Empty, "Your account has been deactivated. Contact support.");
                 return View(model);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(
-                model.Email,
-                model.Password,
-                model.RememberMe,
-                lockoutOnFailure: true);
+            // This will enforce email confirmation due to Identity options
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
-                _logger.LogInformation($"User {model.Email} logged in.");
+                _logger.LogInformation("User {Email} logged in.", model.Email);
 
                 // Redirect based on role
                 var roles = await _userManager.GetRolesAsync(user);
-
-                if (roles.Contains("Admin"))
+                var role = roles.FirstOrDefault()?.ToLowerInvariant();
+                return role switch
                 {
-                    return RedirectToAction("Dashboard", "Admin");
-                }
-                else if (roles.Contains("Company"))
-                {
-                    return RedirectToAction("Dashboard", "Company");
-                }
-                else if (roles.Contains("Distributor"))
-                {
-                    return RedirectToAction("Dashboard", "Distributor");
-                }
-                else
-                {
-                    return RedirectToLocal(returnUrl);
-                }
+                    "admin" => RedirectToAction("Dashboard", "Admin"),
+                    "company" => RedirectToAction("Dashboard", "Company"),
+                    "distributor" => RedirectToAction("Dashboard", "Distributor"),
+                    "consumer" => RedirectToAction("Index", "Home"),
+                    _ => RedirectToLocal(returnUrl)
+                };
             }
 
             if (result.IsLockedOut)
             {
-                _logger.LogWarning($"User {model.Email} account locked out.");
+                _logger.LogWarning("User account locked out.");
                 return View("Lockout");
+            }
+
+            if (result.IsNotAllowed)
+            {
+                ModelState.AddModelError(string.Empty, "You must confirm your email to log in.");
+                return View(model);
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(model);
         }
 
-        // POST: Account/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -109,23 +191,38 @@ namespace PharmaFlow.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: Account/AccessDenied
-        [AllowAnonymous]
+        [HttpGet]
         public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Lockout()
         {
             return View();
         }
 
         private IActionResult RedirectToLocal(string? returnUrl)
         {
-            if (Url.IsLocalUrl(returnUrl))
-            {
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
-            }
-            else
+            return RedirectToAction("Index", "Home");
+        }
+
+        private string NormalizeRole(string? role)
+        {
+            if (string.IsNullOrWhiteSpace(role)) return string.Empty;
+            var r = role.Trim().ToLowerInvariant();
+            return r switch
             {
-                return RedirectToAction("Index", "Home");
-            }
+                "admin" => "Admin",
+                "company" => "Company",
+                "distributor" => "Distributor",
+                "consumer" => "Consumer",
+                "driver" => "Driver",
+                _ => char.ToUpperInvariant(r[0]) + r.Substring(1)
+            };
         }
     }
 }

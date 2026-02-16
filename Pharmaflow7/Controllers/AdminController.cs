@@ -10,7 +10,7 @@ using System.Text;
 
 namespace PharmaFlow.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -30,9 +30,9 @@ namespace PharmaFlow.Controllers
         // GET: Admin/Dashboard
         public async Task<IActionResult> Dashboard()
         {
-            var companies = await _userManager.GetUsersInRoleAsync("Company");
-            var distributors = await _userManager.GetUsersInRoleAsync("Distributor");
-            var consumers = await _userManager.GetUsersInRoleAsync("Consumer");
+            var companies = await _userManager.GetUsersInRoleAsync("company");
+            var distributors = await _userManager.GetUsersInRoleAsync("distributor");
+            var consumers = await _userManager.GetUsersInRoleAsync("consumer");
 
             var viewModel = new AdminDashboardViewModel
             {
@@ -62,7 +62,7 @@ namespace PharmaFlow.Controllers
         // GET: Admin/Companies
         public async Task<IActionResult> Companies()
         {
-            var companies = await _userManager.GetUsersInRoleAsync("Company");
+            var companies = await _userManager.GetUsersInRoleAsync("company");
             var viewModel = companies.Select(c => new CompanyListItemViewModel
             {
                 Id = c.Id,
@@ -114,7 +114,7 @@ namespace PharmaFlow.Controllers
                 EmailConfirmed = true,
                 IsVerified = model.VerifyImmediately,
                 IsActive = true,
-                UserType = "Company",
+                UserType = "company",
                 CreatedByAdminId = _userManager.GetUserId(User),
                 CreatedDate = DateTime.UtcNow
             };
@@ -123,7 +123,7 @@ namespace PharmaFlow.Controllers
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(company, "Company");
+                await _userManager.AddToRoleAsync(company, "company");
 
                 // In production, send email with credentials
                 // For now, store in TempData to display
@@ -164,7 +164,7 @@ namespace PharmaFlow.Controllers
             }
 
             var company = await _userManager.FindByIdAsync(id);
-            if (company == null || !await _userManager.IsInRoleAsync(company, "Company"))
+            if (company == null || !await _userManager.IsInRoleAsync(company, "company"))
             {
                 return NotFound();
             }

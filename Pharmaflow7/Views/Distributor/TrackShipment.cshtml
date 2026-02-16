@@ -944,6 +944,29 @@
                 row.style.display = matchesSearch && matchesStatus && matchesDriver ? '' : 'none';
             });
         }
+
+        connection.on("ReceiveLocationUpdate", (shipmentId, latitude, longitude, status) => {
+        if(truckMarkers[shipmentId]){
+        truckMarkers[shipmentId].setLatLng([latitude, longitude]);
+        truckMarkers[shipmentId].setPopupContent(`شحنة: ${shipmentId}<br>الحالة: ${status}`);
+        routes[shipmentId].spliceWaypoints(0,1,L.latLng(latitude, longitude));
+        document.getElementById(`status_${shipmentId}`).innerText = status;
+        }
+        });
+
+        connection.on("TripStarted", (shipmentId, status)=>{
+        document.getElementById(`startTrip_${shipmentId}`).disabled = true;
+        document.getElementById(`endTrip_${shipmentId}`).disabled = false;
+        document.getElementById(`status_${shipmentId}`).innerText = status;
+        showMessage(`تم بدء الرحلة للشحنة ${shipmentId}!`,'success');
+        });
+
+        connection.on("TripEnded", (shipmentId, status)=>{
+        document.getElementById(`endTrip_${shipmentId}`).disabled = true;
+        document.getElementById(`status_${shipmentId}`).innerText = status;
+        showMessage(`تم إنهاء الرحلة للشحنة ${shipmentId}!`,'success');
+        });
+
     </script>
 </body>
 </html>

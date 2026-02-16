@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Pharmaflow7.Models;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 public class BaseController : Controller
 {
@@ -25,18 +24,11 @@ public class BaseController : Controller
                 var user = await _userManager.GetUserAsync(User);
                 if (user != null)
                 {
-                    ViewData["RoleType"] = user.RoleType;
-                    ViewData["UserName"] = user.RoleType switch
-                    {
-                        "company" => user.CompanyName,
-                        "distributor" => user.DistributorName,
-                        _ => user.UserName
-                    };
-                }
-                else
-                {
-                    ViewData["RoleType"] = null;
-                    ViewData["UserName"] = User.Identity.Name ?? "Guest";
+                    // Use RoleType consistently (stored in ApplicationUser.RoleType)
+                    ViewData["RoleType"] = user.RoleType?.ToLowerInvariant();
+                    ViewData["UserName"] = user.RoleType?.ToLowerInvariant() == "company" ? user.CompanyName :
+                                           user.RoleType?.ToLowerInvariant() == "distributor" ? user.DistributorName :
+                                           user.UserName;
                 }
             }
             catch
@@ -53,5 +45,4 @@ public class BaseController : Controller
 
         await next();
     }
-
 }

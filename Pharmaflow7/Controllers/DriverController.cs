@@ -175,19 +175,19 @@ namespace Pharmaflow7.Controllers
             }
         }
 
-        // باقي الأكشنات (ManageDrivers, AddDriver, EditDriver, DeleteDriver, GetDrivers) تبقى زي ما هي
-        [Authorize(Roles = "distributor")]
+ 
         [HttpGet]
         public async Task<IActionResult> ManageDrivers()
         {
             try
             {
+
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null)
+                if (user == null || user.RoleType != "distributor")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to ManageDrivers.");
                     return Unauthorized();
                 }
+
 
                 var drivers = await _context.Drivers
                     .Where(d => d.DistributorId == user.Id)
@@ -203,26 +203,28 @@ namespace Pharmaflow7.Controllers
             }
         }
 
-        [Authorize(Roles = "distributor")]
+        
         [HttpGet]
         public IActionResult AddDriver()
         {
             return View();
         }
 
-        [Authorize(Roles = "distributor")]
+        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddDriver(AddDriverViewModel model)
         {
             try
             {
+
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null || user.RoleType != "distributor")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to AddDriver.");
-                    return RedirectToAction("Login", "Auth");
+                    return Unauthorized();
                 }
+
 
                 if (ModelState.IsValid)
                 {
@@ -305,11 +307,11 @@ namespace Pharmaflow7.Controllers
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null)
+                if (user == null || user.RoleType != "distributor")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to EditDriver.");
                     return Unauthorized();
                 }
+
 
                 var driver = await _context.Drivers
                     .Where(d => d.Id == id && d.DistributorId == user.Id)
@@ -348,12 +350,13 @@ namespace Pharmaflow7.Controllers
         {
             try
             {
+
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null)
+                if (user == null || user.RoleType != "distributor")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to EditDriver.");
                     return Unauthorized();
                 }
+
 
                 var driver = await _context.Drivers
                     .Where(d => d.Id == model.Id && d.DistributorId == user.Id)
@@ -394,19 +397,19 @@ namespace Pharmaflow7.Controllers
             }
         }
 
-        [Authorize(Roles = "distributor")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteDriver(int id)
         {
             try
             {
+
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null)
+                if (user == null || user.RoleType != "distributor")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to DeleteDriver.");
-                    return Json(new { success = false, message = "Unauthorized access." });
+                    return Unauthorized();
                 }
+
 
                 var driver = await _context.Drivers
                     .Where(d => d.Id == id && d.DistributorId == user.Id)
@@ -440,17 +443,19 @@ namespace Pharmaflow7.Controllers
             }
         }
 
-        [Authorize(Roles = "distributor")]
+  
         [HttpGet]
         public async Task<IActionResult> GetDrivers()
         {
             try
             {
+
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null)
+                if (user == null || user.RoleType != "distributor")
                 {
-                    return Json(new { success = false, message = "Unauthorized access." });
+                    return Unauthorized();
                 }
+
 
                 var drivers = await _context.Drivers
                     .Where(d => d.DistributorId == user.Id)

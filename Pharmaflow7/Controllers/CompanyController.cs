@@ -46,13 +46,11 @@ namespace Pharmaflow7.Controllers
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                 if (user == null || user.RoleType.ToLower() != "company")
+                if (user == null || user.RoleType.ToLower() != "company")
                 {
-
-                    _logger.LogWarning("Unauthorized access attempt to CompanyDashboard.");
+                    _logger.LogWarning("Unauthorized access attempt to Reports.");
                     return RedirectToAction("Login", "Auth");
                 }
-
                 var totalProducts = await _context.Products.CountAsync(p => p.CompanyId == user.Id);
                 var activeShipments = await _context.Shipments.CountAsync(s => s.CompanyId == user.Id && s.Status != "Delivered");
                 var deliveredShipments = await _context.Shipments.CountAsync(s => s.CompanyId == user.Id && s.Status == "Delivered");
@@ -481,14 +479,11 @@ namespace Pharmaflow7.Controllers
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null || user.RoleType != "company")
-                    return Unauthorized();
-
-                ModelState.Remove("CompanyId");
-                ModelState.Remove("Company");
-
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                if (user == null || user.RoleType.ToLower() != "company")
+                {
+                    _logger.LogWarning("Unauthorized access attempt to Reports.");
+                    return RedirectToAction("Login", "Auth");
+                }
 
                 var product = new Product
                 {
@@ -602,10 +597,10 @@ namespace Pharmaflow7.Controllers
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null || user.RoleType != "company")
+                if (user == null || user.RoleType.ToLower() != "company")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to GetDrivers by user {UserId}", User?.Identity?.Name);
-                    return Unauthorized();
+                    _logger.LogWarning("Unauthorized access attempt to Reports.");
+                    return RedirectToAction("Login", "Auth");
                 }
 
                 if (string.IsNullOrEmpty(distributorId))

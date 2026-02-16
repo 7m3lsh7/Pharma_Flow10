@@ -1,91 +1,152 @@
-﻿@model dynamic
-@{
+﻿@{
     ViewData["Title"] = "Distributor Dashboard";
 }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Distributor Dashboard</title>
 <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<div class="dashboard-container">
-    <h1><i class="fas fa-tachometer-alt"></i> Distributor Dashboard</h1>
-    <div class="overview">
-        <div class="card" id="drivers">
-            <h2><i class="fas fa-users"></i> Total Drivers</h2>
-            <p id="drivers-value">Loading...</p>
-        </div>
-        <div class="card" id="stock">
-            <h2><i class="fas fa-boxes"></i> Current Inventory</h2>
-            <p id="stock-value">Loading...</p>
-        </div>
-        <div class="card" id="incoming">
-            <h2><i class="fas fa-arrow-down"></i> Incoming Shipments</h2>
-            <p id="incoming-value">Loading...</p>
-        </div>
-        <div class="card" id="outgoing">
-            <h2><i class="fas fa-arrow-up"></i> Outgoing Shipments</h2>
-            <p id="outgoing-value">Loading...</p>
-        </div>
-    </div>
+    <div class="dashboard-wrapper">
 
-    <div class="chart-container">
-        <h2><i class="fas fa-chart-bar"></i> Shipments by Status</h2>
-        <canvas id="shipmentsChart"></canvas>
-    </div>
-
-    <div class="shipments-table">
-        <h2><i class="fas fa-table"></i> Shipment Details</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Shipment ID</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                 
-                </tr>
-            </thead>
-            <tbody id="shipments-body">
-                <tr>
-                    <td colspan="6">Loading shipments...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="actions">
-        <button id="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh Data</button>
-        <button id="add-shipment-btn"><i class="fas fa-plus"></i> Add New Shipment</button>
-    </div>
-</div>
-
-<div class="modal" id="add-shipment-modal">
-    <div class="modal-content">
-        <span class="modal-close">&times;</span>
-        <h2>Add New Shipment</h2>
-        <form id="add-shipment-form">
-            <div class="form-group">
-                <label for="product-id">Product</label>
-                <select id="product-id" name="productId" required>
-                    <option value="">Select Product</option>
-                </select>
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1>Distributor Control Panel</h1>
+                <p class="subtitle">Operational overview and logistics summary</p>
             </div>
-         
-            <div class="form-group">
-                <label for="destination">Destination</label>
-                <input type="text" id="destination" name="destination" required>
+            <div class="header-actions">
+     
+     
             </div>
-            <button type="submit" class="btn">Create Shipment</button>
-        </form>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="overview-grid">
+
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                    <h4>Total Active Shipments</h4>
+                    <p class="stat-value">128</p>
+                    <span class="stat-note positive">+12% this month</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <h4>Completed Deliveries</h4>
+                    <p class="stat-value">342</p>
+                    <span class="stat-note positive">On schedule</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <h4>Pending Shipments</h4>
+                    <p class="stat-value">26</p>
+                    <span class="stat-note warning">Requires attention</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon red">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <h4>Delayed Shipments</h4>
+                    <p class="stat-value">4</p>
+                    <span class="stat-note negative">-2% from last week</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Activity Section -->
+        <div class="card-section">
+            <div class="section-header">
+                <h3>Recent Activities</h3>
+            </div>
+
+            <ul class="activity-list">
+                <li>
+                    <i class="fas fa-box"></i>
+                    Shipment #SH1023 dispatched to Cairo Central Pharmacy
+                    <span>2 hours ago</span>
+                </li>
+                <li>
+                    <i class="fas fa-check"></i>
+                    Delivery completed for Alexandria Warehouse
+                    <span>5 hours ago</span>
+                </li>
+                <li>
+                    <i class="fas fa-truck-loading"></i>
+                    Inventory restocked from Main Supplier
+                    <span>Yesterday</span>
+                </li>
+                <li>
+                    <i class="fas fa-user-plus"></i>
+                    New driver assigned to Delta Region
+                    <span>2 days ago</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Table Section -->
+        <div class="card-section">
+            <div class="section-header">
+                <h3>Shipment Overview</h3>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Destination</th>
+                            <th>Driver</th>
+                            <th>Status</th>
+                            <th>Estimated Arrival</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#SH1023</td>
+                            <td>Cairo</td>
+                            <td>Ahmed Samir</td>
+                            <td><span class="badge success">In Transit</span></td>
+                            <td>Today 6:30 PM</td>
+                        </tr>
+                        <tr>
+                            <td>#SH1021</td>
+                            <td>Giza</td>
+                            <td>Mohamed Tarek</td>
+                            <td><span class="badge warning">Pending</span></td>
+                            <td>Tomorrow</td>
+                        </tr>
+                        <tr>
+                            <td>#SH1018</td>
+                            <td>Alexandria</td>
+                            <td>Youssef Adel</td>
+                            <td><span class="badge danger">Delayed</span></td>
+                            <td>Unknown</td>
+                        </tr>
+                        <tr>
+                            <td>#SH1015</td>
+                            <td>Mansoura</td>
+                            <td>Karim Nabil</td>
+                            <td><span class="badge success">Delivered</span></td>
+                            <td>Completed</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
-</div>
-
-<div class="loading-overlay" id="loading">
-    <div class="spinner"></div>
-</div>
-
-<script src="~/js/dashboard.js" asp-append-version="true"></script>

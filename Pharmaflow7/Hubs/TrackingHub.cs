@@ -18,6 +18,7 @@ namespace Pharmaflow7.Hubs
             var shipment = await _context.Shipments
                 .Include(s => s.Driver)
                 .FirstOrDefaultAsync(s => s.Id == shipmentId);
+
             if (shipment != null)
             {
                 var location = new VehicleLocation
@@ -30,7 +31,8 @@ namespace Pharmaflow7.Hubs
                 _context.VehicleLocations.Add(location);
                 await _context.SaveChangesAsync();
 
-                await Clients.Group($"shipment_{shipmentId}").SendAsync("ReceiveLocationUpdate", shipmentId, latitude, longitude, shipment.Status);
+                await Clients.Group($"shipment_{shipmentId}")
+                    .SendAsync("ReceiveLocationUpdate", shipmentId, latitude, longitude, shipment.Status);
             }
         }
 
@@ -72,16 +74,14 @@ namespace Pharmaflow7.Hubs
                 {
                     var driverIds = await _context.Drivers
                         .Where(d => d.DistributorId == userId)
-                        .Select(d => d.Id) // Id is int
+                        .Select(d => d.Id)
                         .ToListAsync();
                     var shipmentIds = await _context.Shipments
                         .Where(s => s.DriverId.HasValue && driverIds.Contains(s.DriverId.Value))
                         .Select(s => s.Id)
                         .ToListAsync();
                     foreach (var shipmentId in shipmentIds)
-                    {
                         await Groups.AddToGroupAsync(Context.ConnectionId, $"shipment_{shipmentId}");
-                    }
                 }
                 else if (role == "company")
                 {
@@ -90,14 +90,11 @@ namespace Pharmaflow7.Hubs
                         .Select(s => s.Id)
                         .ToListAsync();
                     foreach (var shipmentId in shipmentIds)
-                    {
                         await Groups.AddToGroupAsync(Context.ConnectionId, $"shipment_{shipmentId}");
-                    }
                 }
                 else if (role == "driver")
                 {
-                    var driver = await _context.Drivers
-                        .FirstOrDefaultAsync(d => d.ApplicationUserId == userId);
+                    var driver = await _context.Drivers.FirstOrDefaultAsync(d => d.ApplicationUserId == userId);
                     if (driver != null)
                     {
                         var shipmentIds = await _context.Shipments
@@ -105,9 +102,7 @@ namespace Pharmaflow7.Hubs
                             .Select(s => s.Id)
                             .ToListAsync();
                         foreach (var shipmentId in shipmentIds)
-                        {
                             await Groups.AddToGroupAsync(Context.ConnectionId, $"shipment_{shipmentId}");
-                        }
                     }
                 }
             }

@@ -36,15 +36,11 @@ namespace Pharmaflow7.Controllers
         public async Task<IActionResult> Track()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                _logger.LogWarning("Unauthorized access attempt to TrackShipments.");
-                return RedirectToAction("Login", "Auth");
-            }
+            if (user == null || user.RoleType != "distributor") return RedirectToAction("Login", "Auth");
 
             var driverIds = await _context.Drivers
                 .Where(d => d.DistributorId == user.Id)
-                .Select(d => d.Id) // Id is int, no need for .HasValue
+                .Select(d => d.Id)
                 .ToListAsync();
 
             var shipments = await _context.Shipments
@@ -58,7 +54,7 @@ namespace Pharmaflow7.Controllers
                     ProductName = s.Product.Name,
                     Destination = s.Destination,
                     Status = s.Status,
-                    StoreAddress = s.Store.StoreAddress, // Changed from Address to Name (or update Store entity)
+                    StoreAddress = s.Store.StoreAddress,
                     DriverFullName = s.Driver != null ? s.Driver.FullName : "غير محدد",
                     Latitude = _context.VehicleLocations
                         .Where(vl => vl.ShipmentId == s.Id)
@@ -79,11 +75,13 @@ namespace Pharmaflow7.Controllers
 
             return View(shipments);
         }
+
         public IActionResult Dashboard()
         {
             return View();
         }
 
+        [Authorize(Roles = "distributor")]
         [HttpGet]
         public async Task<IActionResult> GetDashboardData()
         {
@@ -132,6 +130,7 @@ namespace Pharmaflow7.Controllers
             }
         }
 
+        [Authorize(Roles = "Distributor")]
         [HttpGet]
         public async Task<IActionResult> GetShipments()
         {
@@ -176,7 +175,7 @@ namespace Pharmaflow7.Controllers
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null || user.RoleType != "distributor")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to TrackShipment.");
+                    _logger.LogWarning("Unauthorized access attempt to TrackShipments.");
                     return RedirectToAction("Login", "Auth");
                 }
 
@@ -260,13 +259,13 @@ namespace Pharmaflow7.Controllers
         {
             try
             {
+           
                 var user = await _userManager.GetUserAsync(User);
-                _logger.LogInformation("RejectShipment called with ID: {ShipmentId}, User ID: {UserId}", id, user?.Id);
                 if (user == null || user.RoleType != "distributor")
                 {
-                    _logger.LogWarning("Unauthorized access attempt to RejectShipment.");
                     return Unauthorized();
                 }
+
 
                 var shipment = await _context.Shipments
                     .FirstOrDefaultAsync(s => s.Id == id && s.DistributorId == user.Id);
@@ -290,125 +289,80 @@ namespace Pharmaflow7.Controllers
                 return Json(new { success = false, message = "An error occurred while rejecting the shipment." });
             }
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmDelivery([FromQuery] int id)
         {
-            try
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null || user.RoleType != "distributor") return Unauthorized();
+
+            var shipment = await _context.Shipments.Include(s => s.Driver)
+                .FirstOrDefaultAsync(s => s.Id == id && s.DistributorId == user.Id);
+            if (shipment == null) return Json(new { success = false, message = "Shipment not found." });
+
+            if (shipment.Status != "In Transit" || shipment.IsAcceptedByDistributor != true)
+                return Json(new { success = false, message = "Cannot confirm delivery for this shipment." });
+
+            shipment.Status = "Delivered";
+            _context.Shipments.Update(shipment);
+            await _context.SaveChangesAsync();
+
+            if (shipment.DriverId.HasValue)
             {
-                var user = await _userManager.GetUserAsync(User);
-                _logger.LogInformation("ConfirmDelivery called with ID: {ShipmentId}, User ID: {UserId}", id, user?.Id);
-                if (user == null || user.RoleType != "distributor")
+                var driver = await _context.Drivers.FirstOrDefaultAsync(d => d.Id == shipment.DriverId.Value);
+                if (driver != null)
                 {
-                    _logger.LogWarning("Unauthorized access attempt to ConfirmDelivery.");
-                    return Unauthorized();
-                }
-
-                var shipment = await _context.Shipments
-                    .Include(s => s.Driver)
-                    .FirstOrDefaultAsync(s => s.Id == id && s.DistributorId == user.Id);
-                if (shipment == null)
-                {
-                    _logger.LogWarning("Shipment not found for ID: {ShipmentId}, DistributorId: {DistributorId}", id, user.Id);
-                    return Json(new { success = false, message = "Shipment not found." });
-                }
-
-                
-
-                if (shipment.Status != "In Transit" || shipment.IsAcceptedByDistributor != true)
-                {
-                    _logger.LogWarning("Cannot confirm delivery for ID: {ShipmentId}. Status: {Status}, Accepted: {Accepted}", id, shipment.Status, shipment.IsAcceptedByDistributor);
-                    return Json(new { success = false, message = "Cannot confirm delivery for this shipment." });
-                }
-
-                shipment.Status = "Delivered";
-                _context.Shipments.Update(shipment);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Delivery confirmed for shipment {ShipmentId} by distributor {DistributorId}", id, user.Id);
-
-                if (shipment.DriverId.HasValue)
-                {
-                    var driver = await _context.Drivers
-                        .FirstOrDefaultAsync(d => d.Id == shipment.DriverId.Value);
-                    if (driver != null)
+                    var notification = new Notification
                     {
-                        var notification = new Notification
-                        {
-                            UserId = driver.ApplicationUserId, // Use ApplicationUserId
-                            Message = $"Shipment {id} delivery confirmed.",
-                            ShipmentId = id,
-                            IsRead = false,
-                            CreatedAt = DateTime.UtcNow
-                        };
-                        _context.Notifications.Add(notification);
-                        await _context.SaveChangesAsync();
-                        await _hubContext.Clients.User(driver.ApplicationUserId).SendAsync("ReceiveNotification", notification.Message, id);
-                    }
+                        UserId = driver.ApplicationUserId,
+                        Message = $"Shipment {id} delivery confirmed.",
+                        ShipmentId = id,
+                        IsRead = false,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.Notifications.Add(notification);
+                    await _context.SaveChangesAsync();
+                    await _hubContext.Clients.User(driver.ApplicationUserId).SendAsync("ReceiveNotification", notification.Message, id);
                 }
+            }
 
-                return Json(new { success = true, message = "Delivery confirmed successfully!" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error confirming delivery for shipment {ShipmentId}", id);
-                return Json(new { success = false, message = "An error occurred while confirming delivery." });
-            }
+            return Json(new { success = true, message = "Delivery confirmed successfully!" });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignDriverToShipment(int shipmentId, int driverId) // Changed to int
+        public async Task<IActionResult> AssignDriverToShipment(int shipmentId, int driverId)
         {
-            try
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null || user.RoleType != "distributor") return Unauthorized();
+
+            var shipment = await _context.Shipments.FirstOrDefaultAsync(s => s.Id == shipmentId && s.DistributorId == user.Id);
+            if (shipment == null) return Json(new { success = false, message = "Shipment not found." });
+
+            var driver = await _context.Drivers.FirstOrDefaultAsync(d => d.Id == driverId && d.DistributorId == user.Id);
+            if (driver == null) return Json(new { success = false, message = "Driver not found or not assigned to your company." });
+
+            shipment.DriverId = driverId;
+            shipment.Status = "In Transit";
+            _context.Shipments.Update(shipment);
+
+            var notification = new Notification
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null || user.RoleType != "distributor")
-                {
-                    _logger.LogWarning("Unauthorized access attempt to AssignDriverToShipment.");
-                    return Json(new { success = false, message = "Unauthorized access." });
-                }
+                UserId = driver.ApplicationUserId,
+                Message = $"You have been assigned to shipment {shipmentId}.",
+                ShipmentId = shipmentId,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
 
-                var shipment = await _context.Shipments
-                    .FirstOrDefaultAsync(s => s.Id == shipmentId && s.DistributorId == user.Id);
-                if (shipment == null)
-                {
-                    return Json(new { success = false, message = "Shipment not found." });
-                }
+            await _hubContext.Clients.User(driver.ApplicationUserId).SendAsync("ReceiveNotification", notification.Message, shipmentId);
 
-                var driver = await _context.Drivers
-                    .FirstOrDefaultAsync(d => d.Id == driverId && d.DistributorId == user.Id);
-                if (driver == null)
-                {
-                    return Json(new { success = false, message = "Driver not found or not assigned to your company." });
-                }
-
-                shipment.DriverId = driverId;
-                shipment.Status = "In Transit";
-                _context.Shipments.Update(shipment);
-
-                var notification = new Notification
-                {
-                    UserId = driver.ApplicationUserId, // Use ApplicationUserId
-                    Message = $"You have been assigned to shipment {shipmentId}.",
-                    ShipmentId = shipmentId,
-                    IsRead = false,
-                    CreatedAt = DateTime.UtcNow
-                };
-                _context.Notifications.Add(notification);
-                await _context.SaveChangesAsync();
-
-                await _hubContext.Clients.User(driver.ApplicationUserId).SendAsync("ReceiveNotification", notification.Message, shipmentId);
-
-                _logger.LogInformation("Driver {DriverId} assigned to shipment {ShipmentId} by distributor {DistributorId}", driverId, shipmentId, user.Id);
-                return Json(new { success = true, message = "Driver assigned successfully!" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error assigning driver to shipment {ShipmentId}", shipmentId);
-                return Json(new { success = false, message = "An error occurred while assigning the driver." });
-            }
+            _logger.LogInformation("Driver {DriverId} assigned to shipment {ShipmentId} by distributor {DistributorId}", driverId, shipmentId, user.Id);
+            return Json(new { success = true, message = "Driver assigned successfully!" });
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
