@@ -8,7 +8,7 @@ using Pharmaflow7.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
-builder.Services.AddControllersWithViews();
+
 builder.Services.AddSignalR();
 
 // Email & OTP
@@ -16,6 +16,26 @@ builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SupportNonNullableReferenceTypes();
+
+    // تجاهل أي Controller مش API
+    c.DocInclusionPredicate((docName, apiDesc) =>
+    {
+        var controllerNamespace = apiDesc.ActionDescriptor.RouteValues["controller"];
+        // خلي Swagger يشوف بس الـ API Controllers
+        return controllerNamespace != null && controllerNamespace.EndsWith("Api");
+    });
+});
+
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -76,7 +96,26 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("DriverOnly", policy => policy.RequireRole("driver"));
 });
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
+
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Seed roles & admin
 using (var scope = app.Services.CreateScope())
@@ -96,12 +135,14 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapControllers();
 // SignalR
 app.MapHub<TrackingHub>("/trackingHub");
+
 
 // Routes
 app.MapControllerRoute(
